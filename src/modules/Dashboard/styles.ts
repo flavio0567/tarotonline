@@ -1,0 +1,126 @@
+import styled from 'styled-components/native';
+import { Feather } from '@expo/vector-icons';
+import { FlatList, Platform } from 'react-native';
+import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
+import { RectButton } from 'react-native-gesture-handler';
+import { Picker } from '@react-native-picker/picker';
+
+import { AttendantDTO } from '../../dtos/AttendantDTO';
+
+export const Container = styled.View`
+  flex: 1;
+  background-color: ${({ theme }) => theme.colors.shape};
+`;
+
+export const Header = styled.View`
+  width: 100%;
+
+  background-color: ${({ theme }) => theme.colors.shape};
+  padding: ${Platform.OS === 'ios' ? (getStatusBarHeight() - 12) : 0}px 14px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+`;
+
+export const SearchAttendant = styled(Picker)`
+  /* margin: 10px;
+  width: 300px;
+  height: 45px; */
+  /* border-width: 2px; */
+  background-color: ${({ theme }) => theme.colors.shape};
+`;
+
+export const UserWrapper = styled.View`
+  width: 100%;
+  height: ${RFPercentage(20)}px;
+
+ /* background-color: ${({ theme }) => theme.colors.success}; */
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const UserInfo = styled.View`
+  width: 250px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const Photo = styled.Image`
+  width: ${Platform.OS === 'ios' ? RFValue(50) : RFValue(65)}px;
+  height: ${Platform.OS === 'ios' ? RFValue(50) : RFValue(65)}px;
+
+  border-radius: 5px;
+`;
+
+export const User = styled.View`
+  margin-top: 10px;
+  margin-left: 17px;
+  /* margin-left:  */
+`;
+
+export const UserGreeting = styled.Text`
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${RFValue(14)}px;
+  font-family: ${({ theme }) => theme.fonts.regular};
+`;
+
+export const UserName = styled.Text`
+  width: ${RFValue(200)}px;
+  height: ${RFValue(46)}px;
+  color: ${({ theme }) => theme.colors.text};
+
+  font-size: ${RFValue(14)}px;
+  font-family: ${({ theme }) => theme.fonts.bold};
+`;
+
+export const SideWrapper = styled.View`
+  flex-direction: column;
+  margin-top: 40px;
+`;
+
+export const Button = styled(RectButton)`
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  padding-bottom: 10px;
+`;
+
+export const Icon = styled(Feather).attrs({
+  name: 'power',
+})`
+  color: ${({ theme }) => theme.colors.attention};
+  font-size: ${Platform.OS === 'ios' ? RFValue(26) : RFValue(32)}px;
+`;
+
+
+export const BalanceView = styled.View`
+  flex: 1;
+  flex-direction: column;
+`;
+
+export const BalanceText = styled.Text`
+  /* width: ${RFValue(200)}px;
+  height: ${RFValue(46)}px; */
+  color: ${({ theme }) => theme.colors.text};
+
+  font-size: ${RFValue(8)}px;
+  /* font-family: ${({ theme }) => theme.fonts.bold}; */
+`;
+
+export const SearchView = styled.View`
+  background-color: ${({ theme }) => theme.colors.primary};
+  width: 100%;
+  height: ${RFPercentage(26)}px;
+
+  position: absolute;
+  margin-top: ${RFPercentage(18)}px;
+`;
+
+export const AttendantList = styled(FlatList as new () => FlatList<AttendantDTO>).attrs({
+  showVerticalScrollIndicator: false
+})`
+  margin-top: ${Platform.OS === 'ios' ? RFValue(0) : RFValue(6)}px;
+  margin-left: 8px;
+`;
