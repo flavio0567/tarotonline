@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { MotiView } from 'moti';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { MotiView } from 'moti';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useTheme } from 'styled-components';
 import { Button } from '../../shared/components/Button';
-import { SafeAreaView, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { api } from '../../shared/service/api';
 import { useAuth } from '../../shared/hooks/auth';
 
@@ -23,48 +23,48 @@ import {
   ButtonServiceChannel,
   Separator,
   SeparatorText,
-  TimeTableText,
+  // TimeTableText,
   ConfirmationButton,
   PickerView,
   PickerButton,
 } from './styles';
 
-interface Props {
-  type: 'Disponível' | 'Em atendimento';
-}
+// interface Props {
+//   type: 'Disponível' | 'Em atendimento';
+// }
 
-interface CadastroProps {
-  Codigo: string;
-  Descricao: string;
-  Experiencia: string;
-  Foto: string;
-  Frase: string;
-  HorarioAtendimento: string;
-  Link: string;
-  Nome: string;
-  Nota: number;
-  Oraculos: string;
-  Status: string;
-}
+// interface CadastroProps {
+//   Codigo: string;
+//   Descricao: string;
+//   Experiencia: string;
+//   Foto: string;
+//   Frase: string;
+//   HorarioAtendimento: string;
+//   Link: string;
+//   Nome: string;
+//   Nota: number;
+//   Oraculos: string;
+//   Status: string;
+// }
 
-interface ClientCommentsProps {
-  Atendente: {
-    Codigo: number;
-    Foto: string;
-    Link: string;
-    Nome: string;
-  },
-  Cliente:  {
-    Codigo: number,
-    Nome: string,
-  },
-  Depoimento: {
-    Codigo: number;
-    DataCadastro: Date;
-    Nota: number;
-    Texto: string;
-  }
-}
+// interface ClientCommentsProps {
+//   Atendente: {
+//     Codigo: number;
+//     Foto: string;
+//     Link: string;
+//     Nome: string;
+//   },
+//   Cliente:  {
+//     Codigo: number,
+//     Nome: string,
+//   },
+//   Depoimento: {
+//     Codigo: number;
+//     DataCadastro: Date;
+//     Nota: number;
+//     Texto: string;
+//   }
+// }
 
 interface PriceProps {
   Codigo: number;
@@ -80,11 +80,8 @@ export function SelectedAttendant({ route }: any) {
   
   const [showSalesPrice, setshowSalesPrice] = useState(true);
   const [salesPrice, setSalesPrice] = useState([]);
-  const { navigate } = useNavigation();
-  const [isLoading, setIsLoading] = useState(false);
-  
+  const { navigate, goBack } = useNavigation();
   const theme = useTheme();
-  const { goBack } = useNavigation();
 
   useEffect(() => {
     api.get('comprar-pacotes-creditos/listagem/')
@@ -178,7 +175,6 @@ export function SelectedAttendant({ route }: any) {
         >
           <Icon
             name="chevron-back"
-            // style={{ marginLeft: -55 }}
           />
         </BackButton>
         <SeparatorText style={{ marginLeft: 40 }}>Consultor Selecionado</SeparatorText>

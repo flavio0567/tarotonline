@@ -112,7 +112,7 @@ export const Icon = styled(Ionicons)`
   font-size: ${RFValue(22)}px;
 `;
 
-export const Separator = styled.View`
+export const Separator = styled.SafeAreaView`
   flex-direction: row;
   justify-content: center;
   align-items: center;

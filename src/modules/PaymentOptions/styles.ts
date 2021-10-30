@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { Platform, Dimensions } from 'react-native';
+import { Platform, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -9,11 +9,16 @@ export const Container = styled.View`
   flex: 1;
 `;
 
-export const Header = styled.View``;
+export const Header = styled.SafeAreaView`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 64px;
+`;
 
 export const LogoView = styled.View`
-  align-items: center;
-  margin-top: ${Platform.OS === 'ios' ? getStatusBarHeight() + RFValue(14) : RFValue(16)}px;
+  margin-left: 10px;
 `;
 
 export const SafeView = styled.View`
@@ -21,9 +26,26 @@ export const SafeView = styled.View`
   margin-top: ${RFValue(10)}px;
 `;
 
-export const Content = styled.ScrollView`
-  padding-left: ${Platform.OS === 'ios' ? RFValue(10) : RFValue(8)}px;
+export const BackButton = styled(RectButton)`
+  width: ${RFValue(48)}px;
+  height: ${RFValue(48)}px;
+  color: ${({ theme }) => theme.colors.secondary};
 `;
+
+export const Icon = styled(Ionicons)`
+  margin-top: 14px;
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${RFValue(22)}px;
+`;
+
+export const Content = styled.ScrollView.attrs({
+  contentContainerStyle: {
+    marginLeft: 10,
+    paddingBottom: 10
+  },
+  showsVerticalScrollIndicator: false
+})``;
+
 
 export const IconView = styled.View`
   width: ${Platform.OS === 'ios' ? RFValue(74) : RFValue(97)}px;
@@ -120,16 +142,7 @@ export const TimeToReleaseTextText = styled.Text`
   padding: 4px;
 `;
 
-export const TitleView = styled.View`
-  color: ${({ theme }) => theme.colors.title};
-`;
-
 export const IconCardView = styled.View`
   flex-direction: row;
   padding: 8px;
-`;
-
-export const ImagePagSeguroView = styled.View`
-  flex-direction: row;
-  margin-top: -10px;
 `;

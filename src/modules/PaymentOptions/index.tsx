@@ -2,11 +2,10 @@ import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../shared/service/api';
-import { Alert, FlatList } from 'react-native';
+import { Alert, View, Dimensions } from 'react-native';
 
 import { FontAwesome } from '@expo/vector-icons';
 import LogoSvg from '../assets/tarotonline_logo.svg';
-import { useTheme } from 'styled-components';
 
 import Intl from 'intl';
 import 'intl/locale-data/jsonp/pt-BR';
@@ -22,6 +21,8 @@ import tarotImg from '../assets/tarot.png';
 import {
   Container,
   Header,
+  BackButton,
+  Icon,
   LogoView,
   SafeView,
   CardIcon,
@@ -38,23 +39,15 @@ import {
   CardView,
   CardText,
   MultiCardView,
-  TitleView,
   IconCardView,
-  ImagePagSeguroView,
 } from './styles';
-
-type Props = {
-    [key: string]: string;
-}
 
 export function PaymentOptions({ route }: any) {
   const { attendant, price, paymentMethods } = route.params;
-  console.log('forma de pagto:',paymentMethods)
-  const { navigate } = useNavigation();
-
-  const theme = useTheme();
-
-  let formatter = new Intl.NumberFormat([], {
+  const { navigate, goBack } = useNavigation();
+  const { width } = Dimensions.get('window');
+  
+  const formatter = new Intl.NumberFormat([], {
     style: 'currency',
     currency: 'BRL'
   })
@@ -96,8 +89,17 @@ export function PaymentOptions({ route }: any) {
   return (
     <Container>
       <Header>
+        <BackButton
+          onPress={() => goBack()}
+        >
+          <Icon
+            name="chevron-back"
+          />
+        </BackButton>
         <LogoView>
-          <LogoSvg />
+          <LogoSvg
+              width={width/1.6}
+          />
         </LogoView>
       </Header>
       <SafeView>
@@ -108,149 +110,133 @@ export function PaymentOptions({ route }: any) {
       </SafeView>
       <SafeView>
       <SelectionText>
-        Selecione a opção desejada
+        Selecione a forma de pagamento
       </SelectionText>
       </SafeView>
-      {/* <Content> */}
-      <FlatList
-        data={paymentMethods}
-        numColumns={2}
-        keyExtractor={item => item}
-        renderItem={() => {
-          return (
-            paymentMethods.map((payment: { Codigo: string, Titulo: string }) => (
-              payment.Codigo === 'Rede_Credito' &&
-              (
-                <Box onPress={() => handlePayment('Rede_Credito')}>
-                  <BoxLogo>
-                    <ImageIcon source={redeImg} />
-                  </BoxLogo>
-                  <BoxCards>
-                    <CardView>
-                      <FontAwesome
-                        name="credit-card"
-                        size={22}
-                      />
-                      <CardText>{payment.Titulo}</CardText>
-                    </CardView>
-                    <BoxTimeToRelease style={{ marginTop: 42 }}>
-                      <TimeToReleaseTextText>
-                        Liberação Imediata
-                      </TimeToReleaseTextText>
-                    </BoxTimeToRelease>
-                  </BoxCards>
-                </Box>
-              )
-            )),
-            paymentMethods.map((payment: { Codigo: string, Titulo: string }) => (
-              payment.Codigo === 'PAYMEE' &&
-              (
-                <Box onPress={() => handlePayment('PAYMEE')}>
-                  <BoxLogo>
-                    <ImageIcon source={paymeeImg} />
-                  </BoxLogo>
-                  <BoxCards>
-                    <MultiCardView>
-                      <IconCardView>
-                        <FontAwesome name="bank" size={20} />
-                        <CardText>Transferência</CardText>
-                      </IconCardView>
-                      <IconCardView>
-                        <ImageIcon source={pixImg} />
-                        <CardText style={{ marginTop: 4 }}>Pix</CardText>
-                      </IconCardView>
-                    </MultiCardView>
-                    <BoxTimeToRelease style={{ marginTop: 36 }}>
-                      <TimeToReleaseTextText>
-                        Liberação de 5 a 30 minutos
-                      </TimeToReleaseTextText>
-                    </BoxTimeToRelease>
-                  </BoxCards>
-                </Box>
-              )
-            )),
-            paymentMethods.map((payment: { Codigo: string, Titulo: string }) => (
-              payment.Codigo === 'PAYPAL' &&
-              (
-                <Box onPress={() => handlePayment('PAYPAL')}>
-                  <BoxLogo>
-                    <ImageIcon source={paypalImg} />
-                  </BoxLogo>
-                  <BoxCards>
-                    <CardView>
-                      <FontAwesome
-                        name="credit-card"
-                        size={24}
-                      />
-                      <CardText>Cartão de Crédito</CardText>
-                    </CardView>
-                    <BoxTimeToRelease style={{ marginTop: 42 }}>
-                      <TimeToReleaseTextText>
-                        Liberação Imediata
-                      </TimeToReleaseTextText>
-                    </BoxTimeToRelease>
-                  </BoxCards>
-                </Box>
-              )
-            )),
-            paymentMethods.map((payment: { Codigo: string, Titulo: string }) => (
-              payment.Codigo === 'PAGSEGURO' &&
-              (
-                <Box onPress={() => handlePayment('PAGSEGURO')}>
+      <Content>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            <View style={{
+              flexGrow: 1,
+            }}>
+              <Box onPress={() => handlePayment('Rede_Credito')}>
+                <BoxLogo>
+                  <ImageIcon source={redeImg} />
+                </BoxLogo>
+                <BoxCards>
                   <CardView>
-                    <ImageIcon source={pagseguroImg} />
+                    <FontAwesome
+                      name="credit-card"
+                      size={22}
+                    />
+                    <CardText>Cartão de Crédito</CardText>
+                  </CardView>
+                  <BoxTimeToRelease style={{ marginTop: 42 }}>
+                    <TimeToReleaseTextText>
+                      Liberação Imediata
+                    </TimeToReleaseTextText>
+                  </BoxTimeToRelease>
+                </BoxCards>
+              </Box>
+              <Box onPress={() => handlePayment('PAYMEE')}>
+                <BoxLogo>
+                  <ImageIcon source={paymeeImg} />
+                </BoxLogo>
+                <BoxCards>
+                  <MultiCardView>
+                    <IconCardView>
+                      <FontAwesome name="bank" size={20} />
+                      <CardText>Transferência</CardText>
+                    </IconCardView>
+                    <IconCardView>
+                      <ImageIcon source={pixImg} />
+                      <CardText style={{ marginTop: 4 }}>Pix</CardText>
+                    </IconCardView>
+                  </MultiCardView>
+                  <BoxTimeToRelease style={{ marginTop: 4 }}>
+                    <TimeToReleaseTextText>
+                      Liberação de 5 a 30 minutos
+                    </TimeToReleaseTextText>
+                  </BoxTimeToRelease>
+                </BoxCards>
+              </Box>
+              <Box onPress={() => handlePayment('PAYPAL')}>
+                <BoxLogo>
+                  <ImageIcon source={paypalImg} />
+                </BoxLogo>
+                <BoxCards>
+                  <CardView>
+                    <FontAwesome
+                      name="credit-card"
+                      size={24}
+                    />
+                    <CardText>Cartão de Crédito</CardText>
+                  </CardView>
+                  <BoxTimeToRelease style={{ marginTop: 42 }}>
+                    <TimeToReleaseTextText>
+                      Liberação Imediata
+                    </TimeToReleaseTextText>
+                  </BoxTimeToRelease>
+                </BoxCards>
+              </Box>
+            </View>
+            <View style={{
+              width: 190,
+            }}>
+              <Box onPress={() => handlePayment('PAGSEGURO')}>
+                <BoxLogo>
+                  <ImageIcon source={pagseguroImg} />
+                </BoxLogo>
+                <BoxCards>
+                  <MultiCardView>
                     <IconCardView>
                       <FontAwesome
                         name="credit-card"
                         size={24}
-                        style={{
-                          color: theme.colors.secondary,
-                          // marginLeft: 40
-                        }}
+                        style={{ marginTop: -4 }}
                       />
-                      <ImagePagSeguroView>
-                        <ImageIcon source={pixImg} />
-                        <ImageIcon source={barcodeImg} />
-                      </ImagePagSeguroView>
+                      <CardText style={{ marginTop: -2 }}>Cartão de Crédito</CardText>
                     </IconCardView>
-                  </CardView>
-                  <TitleView>
-                    <CardText>{payment.Titulo}</CardText>
-                  </TitleView>
-                </Box>
-              )
-            )),
-            paymentMethods.map((payment: { Codigo: string, Titulo: string }) => (
-              payment.Codigo === 'PIX' &&
-              (
-                <Box onPress={() => handlePayment('tarotonline')}>
-                  <BoxLogo>
-                    <ImageIcon source={tarotImg} />
-                  </BoxLogo>
-                  <BoxCards>
-                    <MultiCardView>
-                      <IconCardView>
-                        <FontAwesome name="bank" size={20} />
-                        <CardText>Transferência</CardText>
-                      </IconCardView>
-                      <IconCardView>
-                        <ImageIcon source={pixImg} />
-                        <CardText style={{ marginTop: 4 }}>Pix</CardText>
-                      </IconCardView>
-                    </MultiCardView>
-                    <BoxTimeToRelease>
-                      <TimeToReleaseTextText>
-                        Liberação após aprovação via WhatsApp
-                      </TimeToReleaseTextText>
-                    </BoxTimeToRelease>
-                  </BoxCards>
-                </Box>
-              )
-            ))
-          )
-        }}
-      />
-        {/* </Content> */}
+                    <IconCardView>
+                      <ImageIcon source={pixImg} style={{ marginTop: -14 }} />
+                      <CardText style={{ marginTop: -10 }}>Pix</CardText>
+                    </IconCardView>
+                    <IconCardView>
+                      <ImageIcon source={barcodeImg} style={{ marginTop: -16 }} />
+                      <CardText style={{ marginTop: -12 }}>Boleto</CardText>
+                    </IconCardView>
+                  </MultiCardView>
+                  <BoxTimeToRelease style={{ marginTop: -6 }}>
+                    <TimeToReleaseTextText>
+                      Liberação após aprovação
+                    </TimeToReleaseTextText>
+                  </BoxTimeToRelease>
+                </BoxCards>
+              </Box>
+              <Box onPress={() => handlePayment('tarotonline')}>
+                <BoxLogo>
+                  <ImageIcon source={tarotImg} />
+                </BoxLogo>
+                <BoxCards>
+                  <MultiCardView>
+                    <IconCardView>
+                      <FontAwesome name="bank" size={20} />
+                      <CardText>Transferência</CardText>
+                    </IconCardView>
+                    <IconCardView>
+                      <ImageIcon source={pixImg} />
+                      <CardText style={{ marginTop: 4 }}>Pix</CardText>
+                    </IconCardView>
+                  </MultiCardView>
+                  <BoxTimeToRelease style={{ marginTop: 4 }}>
+                    <TimeToReleaseTextText>
+                      Liberação após aprovação via WhatsApp
+                    </TimeToReleaseTextText>
+                  </BoxTimeToRelease>
+                </BoxCards>
+              </Box>      
+            </View>
+          </View>
+      </Content>
     </Container>
   )
 }
