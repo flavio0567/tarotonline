@@ -1,15 +1,25 @@
 import styled from 'styled-components/native';
-import { Dimensions } from 'react-native';
+import { Platform, Dimensions } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
 
-const {width} = Dimensions.get('window');
+const {height, width} = Dimensions.get('window');
 
 export const Container = styled.View`
   flex: 1;
   margin-top: 50px;
+`;
+
+export const Content = styled.View``;
+
+export const ConfirmationButton = styled.View`
+  flex-direction: row;
+  width: 50%;
+  margin: 10px;
+  padding: 4px 24px 24px;
 `;
 
 export const Icon = styled(Ionicons)`
@@ -37,26 +47,4 @@ export const BackButton = styled(RectButton)`
   width: ${RFValue(48)}px;
   height: ${RFValue(48)}px;
   color: ${({ theme }) => theme.colors.secondary};
-`;
-
-export const TimeInfoWrapper = styled.View`
-  flex-direction: row;
-  justify-content: space-evenly;
-  padding: 5px;
-  background-color: ${({ theme }) => theme.colors.secondary};
-`;
-
-export const TimeInfo = styled.View`
-  align-items: center;
-`;
-
-export const TimeInfoLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)};
-`;
-
-export const Time = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
-  font-family: ${({ theme }) => theme.fonts.bold}
 `;

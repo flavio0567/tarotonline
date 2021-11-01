@@ -10,9 +10,7 @@ interface ButtonProps {
 
 export const Container = styled(RectButton)<ButtonProps>`
   width: 100%;
-
   height: 60px;
-  margin-top: 8px;
 
   justify-content: center;
   align-items: center;

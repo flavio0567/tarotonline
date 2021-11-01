@@ -1,37 +1,36 @@
 // @ refresh reset
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform, KeyboardAvoidingView, SafeAreaView } from 'react-native';
+import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../../shared/service/api';
 import { useAuth } from '../../../shared/hooks/auth';
 import { uid } from 'uid/single'; 
-import theme from '../../../shared/global/styles/theme';
 import { Button } from '../../../shared/components/Button';
 import { GiftedChat } from 'react-native-gifted-chat';
-import Fire from '../../../shared/components/Fire';
-
+import tarotIcon from '../../assets/tarot_icon.png';
+import { useTheme } from 'styled-components';
 import { initializeApp } from 'firebase/app';
 
 import {
   getDatabase,
   ref,
   onValue,
-  serverTimestamp,
   push,
-  onChildAdded,
   DatabaseReference
 } from 'firebase/database';
 
 import {
   Container,
-  Content,
   Icon,
   Separator,
   SeparatorText,
   BackButton,
-  ConfirmationButton,
+  TimeInfoWrapper,
+  TimeInfoLabel,
+  TimeInfo,
+  Time,
 } from './styles';
-import { string } from 'yup/lib/locale';
 
 export interface MsgProps {
   _id: number;
@@ -50,13 +49,23 @@ interface ConfigProps {
   hash: string;
 }
 
-type AttMsgProps = {
-  [key: string]: {
-    Mensagem: string;
-    Mktime: number;
-    Mktime2: number;
-    OriTipo: string;
-  }
+interface AttDetailProps {
+  AttUltimoKey: number;
+  AttValorPorMinuto: number;
+  ChatUltimoCodigo: number;
+  CliCreditos: number;
+  CliQtdMinutos: number;
+  CliQtdSegundos: number;
+  CliUltimoKey: number;
+  CodigoStatus: number;
+  ComissaoPorc: number;
+  InicioCobranca: number;
+  IsIniciadoCobranca: string;
+  IsTipo: string;
+  QtdCreditosGanhos: number;
+  QtdSegundosGanhos: number;
+  Sta: string;
+  Tipo: string;
 }
 
 export function ChatService({ route }: any) {
@@ -64,26 +73,53 @@ export function ChatService({ route }: any) {
   const { goBack, navigate } = useNavigation();
   const [messages, setMessages] = useState<MsgProps[]>([]);
   const { user } = useAuth();
+  const theme = useTheme();
+
   const [isLoaded, setLoaded] = useState(false);
   const [serviceCode, setServiceCode] = useState(0);
   const [progress, setProgress] = useState(0);
   const { Cadastro } = attendant;
- 
+
+  const [attDetail, setAttDetail] = useState<AttDetailProps>();
+  const [time, setTime] = useState(0);
+  const [amountSeconds, setAmountSeconds] = useState(0);
+  const [amountTime, setAmountTime] = useState(0);
+  const [amountMinutes, setAmountMinutes] = useState(0);
+  const [timeFormatted, setTimeFormatted] = useState('');
+  const [spendingTime, setSpendingTime] = useState('');
+
+  const [remainingMinutes, setRemainingMinutes] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(0);
+  const [diffTime, setDiffTime] = useState(0);
+
   const [databaseRef, setDatabaseRef] = useState<DatabaseReference>();
 
   const [serverTime, setServerTime] = useState(0);
 
-  useEffect (() => {
+  useEffect(() => {
+    setMessages([
+      {
+        _id: 1,
+        text: 'Por favor aguarde, seu atendimento terá início em instantes!',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'Tarot Online',
+          avatar: tarotIcon
+        },
+      },
+    ])
+
     const getServerTime = async () => {
       await api.get('outros/hora-servidor/')
         .then((res) => {
           const { Mktime } = res.data;
+          console.log('Mktime:', format(Mktime, 'dd/MM/yyyy'));
           setServerTime(Mktime);
         })
    
       await api.post(`atendimentos/chat/219/`)
         .then((responseChat) => {
-          console.log('* * * Atendimento Criado * * * ', responseChat.data);
           const { Atendimento } = responseChat.data;
           setServiceCode(Atendimento.Codigo);
 
@@ -103,30 +139,95 @@ export function ChatService({ route }: any) {
   }, []);
 
   useEffect(() => {
-    setTimeout(function () { 
+    const timer = setTimeout(function () { 
       setServerTime(serverTime + 1);
+      handleRemainingMinutes();
+      handleRemainingTime();
+      handleSpendingTime();
     }, 1000)
+    return () => clearTimeout(timer);
   }, [serverTime]);
   
+  const handleRemainingMinutes = () => {
+    if (attDetail?.IsIniciadoCobranca === "S") {
+      setTime(serverTime - attDetail.InicioCobranca);
+      setAmountSeconds(attDetail.CliQtdSegundos);
+      setDiffTime(amountSeconds - time);
+      setAmountMinutes(Math.round(diffTime / 60));
+      
+      setRemainingMinutes(amountMinutes);
+      setRemainingTime(diffTime);
+    } else {
+      setRemainingMinutes(-1);
+      setRemainingTime(-1);
+    }
+  }
 
-  // useEffect(() => {
-  //   setMessages([
-  //     {
-  //       _id: 1,
-  //       text: 'Hello developer',
-  //       createdAt: new Date(),
-  //       user: {
-  //         _id: 2,
-  //         name: 'React Native',
-  //         avatar: 'https://placeimg.com/140/140/any',
-  //       },
-  //     },
-  //   ])
-  // }, [])
+  const handleRemainingTime = () => {
+    const diff: number = Math.ceil(parseFloat(String(remainingTime)));
+    let timeFormatted: string = '';
+
+    if (diff > 0) {
+      if (diff < 60) {
+        console.log('Alerta de crédito:', 'Menos de 1 minuto');
+      } else {
+        const day 		  	  = Math.floor(diff / 86400);
+        const hours: number = Math.floor((diff - ( day * 86400 )) / 3600);
+        const	minutes 		  = Math.floor((diff - ( day * 86400 ) - ( hours * 3600 )) / 60);
+        const	seconds 		  = Math.round(diff - ( day * 86400 ) - ( hours * 3600 ) - ( minutes * 60 ));
+            
+        const	xhours 			  = ("00" + hours).substring(("00" + hours).length-2);
+        const	xminutes 		  = ("00" + minutes).substring(("00" + minutes).length-2);
+        const	xseconds 		  = ("00" + seconds).substring(("00" + seconds).length-2);
+            
+        if( hours > 0 ) {
+          timeFormatted = timeFormatted + "" + xhours + "h";
+        }
+        
+        if( minutes > 0 || hours > 0 ) {
+          timeFormatted = timeFormatted + " " + xminutes + "m";
+        }
+
+        setTimeFormatted(timeFormatted);
+      }
+    }
+  }
+
+  const handleSpendingTime = () => {
+		if( serverTime && attDetail?.InicioCobranca! > 0 ) {
+			const diff		= serverTime - attDetail?.InicioCobranca!;
+			
+			const day 			= Math.floor(diff / 86400);
+			const hours 			= Math.floor((diff - ( day * 86400 )) / 3600);
+			const minutes 		= Math.floor((diff - ( day * 86400 ) - ( hours * 3600 )) / 60);
+			const seconds 		= Math.round(diff - ( day * 86400 ) - ( hours * 3600 ) - ( minutes * 60 ));
+			
+			const xhours 			= ("00" + hours).substring(("00" + hours).length-2);
+			const xminutes 		= ("00" + minutes).substring(("00" + minutes).length-2);
+			const xseconds 		= ("00" + seconds).substring(("00" + seconds).length-2);
+			
+			let timeFormatted	= "";
+			
+			if( hours > 0 ) {
+			  timeFormatted	= timeFormatted + "" + xhours + "h";
+			}
+			
+			if( minutes > 0 || hours > 0 ) {
+			  timeFormatted	= timeFormatted + " " + xminutes + "m";
+			}
+			
+			if( seconds > 0 || minutes > 0 || hours > 0 ) {
+			  timeFormatted	= timeFormatted + " " + xseconds + "s";
+			}
+			
+      setSpendingTime(timeFormatted);
+		} else {
+			setSpendingTime('--');
+  	}
+		
+	}
 
   function init(config: ConfigProps) {
-    console.log('* * * Criando Atendimento * * *', config);
-
     const { apiKey, databaseURL, hash} = config;
 
         const app = initializeApp({apiKey, databaseURL});
@@ -141,7 +242,7 @@ export function ChatService({ route }: any) {
           databaseDataRef,
           (snapshot: { exists: () => any; val: () => any; }) => {
             if (snapshot.exists()) {
-              console.log('snapshot nos dados: ', snapshot.val());
+              setAttDetail(snapshot.val());
             }
           });
         
@@ -156,7 +257,6 @@ export function ChatService({ route }: any) {
       databaseMsgRef,
       (snapshot) => {
         if (snapshot.exists()) {
-          console.log('====>', snapshot.val());
           const msg = snapshot.val();
           const key = Object.keys(msg)[Object.keys(msg).length - 1];
           const val = msg[key];
@@ -165,32 +265,16 @@ export function ChatService({ route }: any) {
               {
                 _id: uid(16),
                 text: val.Mensagem,
-                createdAt: val.Mktime,
+                createdAt: new Date(),
                 user: {
+                  // _id: Cadastro.Codigo,
                   _id: 219,
                   name: "Atendente Teste",
-                  avatar: 'https://placeimg.com/140/140/any',
+                  avatar: Cadastro.Foto
                 },
               }),
             )
           }         
-
-              // console.log('snap.val key =>', key);
-              // const message: any =
-              // {
-              //   _id: uid(32),
-              //   text: val.Mensagem,
-              //   createdAt: val.Mktime,
-              //   user: {
-              //     _id: user.id,
-              //     name: user.name,
-              //     avatar: user.avatar
-              //   }
-              // };
-              // setMessages(previous => GiftedChat.append(previous, message))
-              // setMessages(message);
-              
-              // console.log('m e s s :', message)
         } else {
               console.log("No data available");
             }
@@ -198,13 +282,12 @@ export function ChatService({ route }: any) {
   };
 
   function send(messages: any[]) {
-    console.log('==== messages =====', messages)
     messages.map((item: any) => {
       const messages = {
         OriTipo: 'C',
         Mensagem: item.text,
-        Mktime: serverTimestamp(),
-        Mktime2: serverTimestamp()
+        Mktime: serverTime,
+        Mktime2: serverTime
       };
       push(databaseRef!, messages)
 
@@ -214,13 +297,12 @@ export function ChatService({ route }: any) {
   const onSend = useCallback((message = []) => {
     setMessages(previous => GiftedChat.append(previous, message))
   }, [])
-  
+
   const chat =
     <GiftedChat
       messages={messages}
       onSend={(message) => {onSend(message), send(message)}}
-      user={
-        { _id: user.id }}
+      user={{ _id: user.id }}
     />;
   
   function handleChatOff() {
@@ -253,6 +335,24 @@ export function ChatService({ route }: any) {
       ): (
           <SafeAreaView style={{ flex: 1 }}>{chat}</SafeAreaView>
       )}
+      <TimeInfoWrapper>
+        <TimeInfo>
+          <TimeInfoLabel>
+            <Time>Tempo Restante</Time>
+          </TimeInfoLabel>
+          <Time>
+            {timeFormatted}
+          </Time>
+        </TimeInfo>
+        <TimeInfo>
+          <TimeInfoLabel>
+            <Time>Tempo Gasto</Time>
+          </TimeInfoLabel>
+          <Time>
+            {spendingTime}
+          </Time>
+        </TimeInfo>
+      </TimeInfoWrapper>
       <Button
         title="Finalizar Atendimento"
         color={theme.colors.attention}
