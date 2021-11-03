@@ -147,7 +147,7 @@ export function Dashboard() {
             </Button>
             <BalanceView>
               <BalanceText>Meu Saldo</BalanceText>
-              <BalanceText>R$ {user.qtdcreditos}</BalanceText>
+              <BalanceText>R$ {(user.qtdcreditos).toFixed(2)}</BalanceText>
             </BalanceView>
           </SideWrapper>
          </UserWrapper>

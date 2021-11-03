@@ -1,25 +1,19 @@
 // @ refresh reset
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Platform, KeyboardAvoidingView, SafeAreaView} from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../../shared/service/api';
 import { useAuth } from '../../../shared/hooks/auth';
-import { uid } from 'uid/single'; 
 import { Button } from '../../../shared/components/Button';
-import { GiftedChat } from 'react-native-gifted-chat';
-import tarotIcon from '../../assets/tarot_icon.png';
 import { useTheme } from 'styled-components';
 import { initializeApp } from 'firebase/app';
 
 import {
   getDatabase,
   ref,
-  onValue,
-  push,
-  DatabaseReference
+  onValue
 } from 'firebase/database';
 
 import {
@@ -33,17 +27,6 @@ import {
   TimeInfo,
   Time,
 } from './styles';
-
-export interface MsgProps {
-  _id: number;
-  text: string;
-  createdAt: Date;
-  user: {
-    _id: number;
-    name: string;
-    avatar?: string;
-  }
-}
 
 interface ConfigProps {
   apiKey: string;
@@ -70,10 +53,9 @@ interface AttDetailProps {
   Tipo: string;
 }
 
-export function VideoService({ route }: any) {
+export function MailService({ route }: any) {
   const { attendant } = route.params;
   const { goBack, navigate } = useNavigation();
-  const [messages, setMessages] = useState<MsgProps[]>([]);
   const { user } = useAuth();
   const theme = useTheme();
 
@@ -92,41 +74,23 @@ export function VideoService({ route }: any) {
   const [remainingTime, setRemainingTime] = useState(0);
   const [diffTime, setDiffTime] = useState(0);
 
-  const [databaseRef, setDatabaseRef] = useState<DatabaseReference>();
-
   const [serverTime, setServerTime] = useState(0);
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Por favor aguarde, seu atendimento terá início em instantes!',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'Tarot Online',
-          avatar: tarotIcon
-        },
-      },
-    ])
-
     const getServerTime = async () => {
       await api.get('outros/hora-servidor/')
         .then((res) => {
           const { Mktime } = res.data;
-          console.log('Mktime:', format(Mktime, 'dd/MM/yyyy'));
           setServerTime(Mktime);
         })
    
-      await api.post(`atendimentos/video/219/`)
-        .then((responseVideo) => {
-          console.log('responseVideo:', responseVideo);
-          const { Atendimento, Video } = responseVideo.data;
-          console.log('IFRAME:', Video.Iframe);
-          setIframe(Video.Iframe);
+      await api.post(`atendimentos/email/219/`)
+        .then((responseEmail) => {
+          console.log('responseEmail:', responseEmail);
+          const { Atendimento } = responseEmail.data;
           setServiceCode(Atendimento.Codigo);
 
-          const { ApiKey, DatabaseURL, Hash } = responseVideo.data.Firebase;
+          const { ApiKey, DatabaseURL, Hash } = responseEmail.data.Firebase;
     
           const config = {
             apiKey: ApiKey,
@@ -249,68 +213,8 @@ export function VideoService({ route }: any) {
         }
       }
     );
-    
-    const databaseMsgRef: DatabaseReference = ref(
-      database, 
-      `/atendimentos/${hash}/mensagens/`
-    );
-    
-    setDatabaseRef(databaseMsgRef);
-    
-    onValue(
-      databaseMsgRef,
-      (snapshot) => {
-        if (snapshot.exists()) {
-          const msg = snapshot.val();
-          const key = Object.keys(msg)[Object.keys(msg).length - 1];
-          const val = msg[key];
-          if (val.OriTipo === "A") {
-            setMessages(previous => GiftedChat.append(previous, 
-              {
-                _id: uid(16),
-                text: val.Mensagem,
-                createdAt: new Date(),
-                user: {
-                  // _id: Cadastro.Codigo,
-                  _id: 219,
-                  // name: Cadastro.Nome,
-                  name: "Atendente Teste",
-                  avatar: Cadastro.Foto
-                },
-              }),
-            )
-          }         
-        } else {
-              console.log("No data available");
-            }
-      }
-    )
   };
 
-  function send(messages: any[]) {
-    messages.map((item: any) => {
-      const messages = {
-        OriTipo: 'C',
-        Mensagem: item.text,
-        Mktime: serverTime,
-        Mktime2: serverTime
-      };
-      push(databaseRef!, messages)
-
-    })
-  }
-
-  const onSend = useCallback((message = []) => {
-    setMessages(previous => GiftedChat.append(previous, message))
-  }, [])
-
-  const chat =
-    <GiftedChat
-      messages={messages}
-      onSend={(message) => {onSend(message), send(message)}}
-      user={{ _id: user.id }}
-    />;
-  
   function handleChatOff() {
     api.post(`atendimentos/finalizar/${serviceCode}/`)
       .then((res) =>
@@ -348,7 +252,7 @@ export function VideoService({ route }: any) {
               source={{ uri: `${iFrame}`}}
             />
           }
-          {chat}
+          {/* {chat} */}
 
         </KeyboardAvoidingView>
       ): (
@@ -361,7 +265,7 @@ export function VideoService({ route }: any) {
                 source={{ uri: `${iFrame}` }}
               />
             }
-            {chat}
+            {/* {chat} */}
 
           </SafeAreaView>
       )}

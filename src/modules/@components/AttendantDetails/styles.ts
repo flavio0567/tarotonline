@@ -11,7 +11,7 @@ interface TypeProps {
   type: 'DISPONIVEL' | 'OCUPADO';
 }
 
-export const Container = styled.ScrollView`
+export const Container = styled.View`
   width: 100%;
   height: 100%;
   background-color: ${({ theme }) => theme.colors.shape};
@@ -100,7 +100,7 @@ export const AttendantDescription = styled.ScrollView.attrs({
 
 export const ProfileDetailsText = styled.Text`
   width: ${Platform.OS === 'ios' ? RFValue(208) : RFValue(242)}px;
-  font-size: ${RFValue(11)}px;
+  font-size: ${RFValue(12)}px;
   font-family: ${({ theme }) => theme.fonts.regular};
   color: ${({ theme }) => theme.colors.text};
 `;
@@ -116,8 +116,8 @@ export const Button = styled(RectButton)`
   justify-content: space-evenly;
   align-items: center;
 
-  width: ${RFValue(44)}px;
-  height: ${RFValue(44)}px;
+  width: ${RFValue(42)}px;
+  height: ${RFValue(42)}px;
   background-color: ${({ theme }) => theme.colors.primary};
   /* border: 1px; */
   border-radius: 25px;
@@ -172,7 +172,7 @@ export const CommentView = styled.ScrollView`
 
 export const CommentsWrapper = styled.View`
   background-color: ${({ theme }) => theme.colors.shape};
-  margin: 4px;
+  margin: 2px;
   padding: 8px;
   border: solid 5px;
   border-color: ${({ theme }) => theme.colors.primary};
@@ -207,5 +207,5 @@ export const Comments = styled.Text`
   padding-top: 4px;
   font-family: ${({ theme }) => theme.fonts.regular};
   color: ${({ theme }) => theme.colors.text};
-  font-size: 12px;
+  font-size: 14px;
 `;

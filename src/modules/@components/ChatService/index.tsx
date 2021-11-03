@@ -99,7 +99,7 @@ export function ChatService({ route }: any) {
   useEffect(() => {
     setMessages([
       {
-        _id: 1,
+        _id: uid(16),
         text: 'Por favor aguarde, seu atendimento terá início em instantes!',
         createdAt: new Date(),
         user: {
@@ -269,6 +269,7 @@ export function ChatService({ route }: any) {
                 user: {
                   // _id: Cadastro.Codigo,
                   _id: 219,
+                  // name: Cadastro.Nome,
                   name: "Atendente Teste",
                   avatar: Cadastro.Foto
                 },

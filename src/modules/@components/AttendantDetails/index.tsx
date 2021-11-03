@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MotiView } from 'moti';
 import { useNavigation } from '@react-navigation/native';
 import he from 'he';
+import { format, parse } from 'date-fns';
 import { Rating } from 'react-native-elements';
 import { FlatList } from 'react-native-gesture-handler';
 import { useTheme } from 'styled-components';
@@ -79,18 +80,14 @@ export function AttendantDetails({ route }: any) {
   const { item: attendant, clientComments, attendantCard } = route.params;
   const { navigate } = useNavigation();
   const { mode, selectedMode } = useAuth();
-  const [serviceChannel, setServiceChannel] = useState(mode);
   const theme = useTheme();
   const description = sanitizeHTML(attendantCard.Descricao);
   const timeTable = attendantCard.HorarioAtendimento;
   const oracle = attendantCard.Oraculos;
 
-
   const { Cadastro } = attendant;
   const comments = clientComments.Dados;
-
   const [attendantDetails, setAttendantDetails] = useState<CadastroProps>({} as CadastroProps);
-
   const { goBack } = useNavigation();
 
   useEffect(() => {
@@ -102,6 +99,14 @@ export function AttendantDetails({ route }: any) {
         item.Client,
         he.decode(item.Cliente.Nome.replace(/<[^>]*>?/gm, '')),
         item.Depoimento,
+        item.Depoimento.DataCadastro = format(
+          parse(
+            item.Depoimento.DataCadastro,
+            'yyyy-MM-dd HH:mm:ss',
+            new Date()
+          ),
+          'dd/MM/yyyy hh:mm'
+        ),
         he.decode(item.Depoimento.Texto.replace(/<[^>]*>?/gm, ''))
       );
     })
@@ -114,7 +119,6 @@ export function AttendantDetails({ route }: any) {
 
   function handleSelection(mode: string) {
     selectedMode(mode);
-    setServiceChannel(mode);
     navigate('SelectedAttendant', { mode, attendant });
   }
   
@@ -253,7 +257,7 @@ export function AttendantDetails({ route }: any) {
                 </CommentDate>
                 <Rating
                   readonly
-                  imageSize={14}
+                  imageSize={12}
                   startingValue={comment.Depoimento.Nota}
                 />
               </CommentHeader>

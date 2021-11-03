@@ -137,18 +137,82 @@ export function SelectedAttendant({ route }: any) {
   }
 
   async function handleCallService() {
+    console.log('call activated!')
     setServiceChannel('call');
     selectedMode('call');
+
+    if (attendant.Cadastro.Status === 'DISPONIVEL') {
+      async function callAPI() {
+        try {
+          if (api.defaults.headers.TOKEN) {
+            navigate('CallService', { attendant });
+          } else {
+            Alert.alert(
+              "Consulta não disponível:",
+              "Token do Cliente não encontrado, favor tentar novamente!")
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      callAPI();
+    } else {
+      Alert.alert(
+      "Consulta não disponível:",
+        "O consultor não está disponível, tente novamente mais tarde!")
+    }
   }
 
   async function handleVideocamService() {
     setServiceChannel('videocam');
     selectedMode('videocam');
+
+    if (attendant.Cadastro.Status === 'DISPONIVEL') {
+      async function callAPI() {
+        try {
+          if (api.defaults.headers.TOKEN) {
+            navigate('VideoService', { attendant });
+          } else {
+            Alert.alert(
+              "Consulta não disponível:",
+              "Token do Cliente não encontrado, favor tentar novamente!")
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      callAPI();
+    } else {
+      Alert.alert(
+      "Consulta não disponível:",
+        "O consultor não está disponível, tente novamente mais tarde!")
+    }
   }
 
   async function handleMailService() {
     setServiceChannel('mail');
     selectedMode('mail');
+    console.log('Mail service activated!!!!!')
+    if (attendant.Cadastro.Status === 'DISPONIVEL') {
+      async function callAPI() {
+        try {
+          if (api.defaults.headers.TOKEN) {
+            navigate('CallService', { attendant });
+          } else {
+            Alert.alert(
+              "Consulta não disponível:",
+              "Token do Cliente não encontrado, favor tentar novamente!")
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      callAPI();
+    } else {
+      Alert.alert(
+      "Consulta não disponível:",
+        "O consultor não está disponível, tente novamente mais tarde!")
+    }
   }
 
   return (
@@ -257,56 +321,7 @@ export function SelectedAttendant({ route }: any) {
           )
         }
       </ButtonWrapper>
-      {/* <ButtonWrapper>
-        <ButtonServiceChannel
-          onPress={handleChatService}
-        >
-          <Icon
-            name="ios-chatbubbles"
-            size={16}
-            style={{color: serviceChannel === 'chat' 
-              ? theme.colors.secondary
-              : "#fff", top: 4
-            }}
-          />
-        </ButtonServiceChannel>
-        <ButtonServiceChannel
-          onPress={handleCallService}
-        >
-          <Icon
-            name="call"
-            size={16}
-            style={{color: serviceChannel === 'call'
-              ? theme.colors.secondary
-              : "#fff", top: 4
-            }}
-          />
-        </ButtonServiceChannel>
-        <ButtonServiceChannel
-          onPress={handleVideocamService}
-        >
-          <Icon
-            name="videocam"
-            size={16}
-            style={{color: serviceChannel === 'videocam' 
-              ? theme.colors.secondary
-              : "#fff", top: 4
-            }}
-          />
-        </ButtonServiceChannel>
-        <ButtonServiceChannel
-          onPress={handleMailService}
-        >
-          <Icon
-            name="mail"
-            size={16}
-            style={{color: serviceChannel === 'mail' 
-              ? theme.colors.secondary
-              : "#fff", top: 4
-            }}
-          />
-        </ButtonServiceChannel>
-      </ButtonWrapper> */}
+
       <Separator>
         <SeparatorText>Selecione Tempo</SeparatorText>
       </Separator>

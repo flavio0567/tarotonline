@@ -11,7 +11,9 @@ import { AttendantDetails } from '../../modules/@components/AttendantDetails';
 import { SelectedAttendant } from '../../modules/SelectedAttendant';
 import { PaymentOptions } from '../../modules/PaymentOptions';
 import { PaymentWebView } from '../../modules/@components/PaymentWebView';
-import { ChatWebView } from '../../modules/@components/ChatWebView';
+import { VideoService } from '../../modules/@components/VideoService';
+import { CallService } from '../../modules/@components/CallService';
+import { MailService } from '../../modules/@components/MailService';
 import { ChatService } from '../../modules/@components/ChatService';
 
  type IconsVariation = {
@@ -117,8 +119,22 @@ export function AppRoutes() {
           }}
         />
         <Stack.Screen
-          name="ChatWebView"
-          component={ChatWebView}
+          name="VideoService"
+          component={VideoService}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="CallService"
+          component={CallService}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="MailService"
+          component={MailService}
           options={{
             headerShown: false
           }}
