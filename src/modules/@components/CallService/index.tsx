@@ -1,20 +1,25 @@
 // @ refresh reset
 import React, { useState, useEffect } from 'react';
-import { Platform, KeyboardAvoidingView, SafeAreaView} from 'react-native';
-import { WebView } from 'react-native-webview';
+import {
+  Platform,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard
+} from 'react-native';
 
+import { CountryPickerModal } from '../../@components/CountryPickerModal';
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../../shared/service/api';
 import { useAuth } from '../../../shared/hooks/auth';
 import { Button } from '../../../shared/components/Button';
 import { useTheme } from 'styled-components';
 import { initializeApp } from 'firebase/app';
+import { Input } from '../../../shared/components/Input';
 
 import {
   getDatabase,
   ref,
-  onValue,
-  DatabaseReference
+  onValue
 } from 'firebase/database';
 
 import {
@@ -27,6 +32,11 @@ import {
   TimeInfoLabel,
   TimeInfo,
   Time,
+  Country,
+  ModalText,
+  ModalTextLabel,
+  Form,
+  // Input
 } from './styles';
 
 interface ConfigProps {
@@ -57,12 +67,13 @@ interface AttDetailProps {
 export function CallService({ route }: any) {
   const { attendant } = route.params;
   const { goBack, navigate } = useNavigation();
-  const { user } = useAuth();
+  const { user, callingCode } = useAuth();
   const theme = useTheme();
 
+  const [phoneNumber, onChangePhoneNumber] = useState('');
+  const [pickupCallingCode, setPickupCallingCode] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('');
   const [serviceCode, setServiceCode] = useState(0);
-  const { Cadastro } = attendant;
-  const [iFrame, setIframe] = useState('');
   const [attDetail, setAttDetail] = useState<AttDetailProps>();
   const [time, setTime] = useState(0);
   const [amountSeconds, setAmountSeconds] = useState(0);
@@ -77,41 +88,38 @@ export function CallService({ route }: any) {
 
   const [serverTime, setServerTime] = useState(0);
 
-  useEffect(() => {
-    const getServerTime = async () => {
-      await api.get('outros/hora-servidor/')
-        .then((res) => {
-          const { Mktime } = res.data;
-          console.log('serverTime:', Mktime);
-          setServerTime(Mktime);
-        })
-   
-      await api.post(`atendimentos/telefone/219/`,
-        {
-          "TelefoneDDI": "55",
-          "Telefone": "998587557"
+  const getServerTime = async () => {
+    console.log('P A I S:', selectedCountry)
+    await api.get('outros/hora-servidor/')
+      .then((res) => {
+        const { Mktime } = res.data;
+        console.log('serverTime:', Mktime);
+        setServerTime(Mktime);
+      })
+    console.log('pais selecionado aqui:', selectedCountry);
+    await api.post(`atendimentos/telefone/219/`,
+      {
+        "TelefoneDDI": selectedCountry,
+        "Telefone": phoneNumber
+      }
+    )
+      .then((responseCall) => {
+        console.log('responseCall:', responseCall);
+        const { Atendimento } = responseCall.data;
+
+        setServiceCode(Atendimento.Codigo);
+
+        const { ApiKey, DatabaseURL, Hash } = responseCall.data.Firebase;
+  
+        const config = {
+          apiKey: ApiKey,
+          databaseURL: DatabaseURL,
+          hash: Hash
         }
-      )
-        .then((responseCall) => {
-          console.log('responseCall:', responseCall);
-          const { Atendimento } = responseCall.data;
 
-          setServiceCode(Atendimento.Codigo);
-
-          const { ApiKey, DatabaseURL, Hash } = responseCall.data.Firebase;
-    
-          const config = {
-            apiKey: ApiKey,
-            databaseURL: DatabaseURL,
-            hash: Hash
-          }
-
-          init(config);
-        })
-    }
-    getServerTime();
-
-  }, []);
+        init(config);
+      })
+  }
 
   useEffect(() => {
     const timer = setTimeout(function () { 
@@ -224,6 +232,12 @@ export function CallService({ route }: any) {
     
   };
 
+  function handleSelectedCountry() {
+    console.log('selecionando pais', callingCode)
+    setPickupCallingCode(!pickupCallingCode);
+    setSelectedCountry(callingCode);
+  }
+
   function handleChatOff() {
     api.post(`atendimentos/finalizar/${serviceCode}/`)
       .then((res) =>
@@ -234,74 +248,84 @@ export function CallService({ route }: any) {
   }
 
   return (
-    <Container>
-      <Separator>
-        <BackButton
-          onPress={() => goBack()}
-        >
-          <Icon
-            name="chevron-back"
-          />
-        </BackButton>
-        <SeparatorText>Atendimento Telefônico</SeparatorText>
-      </Separator>
-
-      {Platform.OS === 'android' ? (
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior="padding"
-          keyboardVerticalOffset={30}
-          enabled
-        >
-          {attDetail?.IsIniciadoCobranca === "S" &&
-            <WebView
-              originWhitelist={["*"]}
-              automaticallyAdjustContentInsets={false}
-              allowsInlineMediaPlayback
-              source={{ uri: `${iFrame}`}}
+      <Container>
+        <Separator>
+          <BackButton
+            onPress={() => goBack()}
+          >
+            <Icon
+              name="chevron-back"
             />
-          }
-          {/* {chat} */}
+          </BackButton>
+          <SeparatorText>Consulta por Telefone</SeparatorText>
+        </Separator>
 
-        </KeyboardAvoidingView>
-      ): (
-          <SafeAreaView style={{ flex: 1 }}>
-            {attDetail?.IsIniciadoCobranca === "S" &&
-              <WebView
-                useWebKit
-                originWhitelist={["*"]}
-                allowsInlineMediaPlayback
-                source={{ uri: `${iFrame}` }}
-              />
-            }
-            {/* {chat} */}
-
-          </SafeAreaView>
-      )}
-      <TimeInfoWrapper>
-        <TimeInfo>
-          <TimeInfoLabel>
-            <Time>Tempo Restante</Time>
-          </TimeInfoLabel>
-          <Time>
-            {timeFormatted}
-          </Time>
-        </TimeInfo>
-        <TimeInfo>
-          <TimeInfoLabel>
-            <Time>Tempo Gasto</Time>
-          </TimeInfoLabel>
-          <Time>
-            {spendingTime}
-          </Time>
-        </TimeInfo>
-      </TimeInfoWrapper>
-      <Button
-        title="Finalizar Atendimento"
-        color={theme.colors.attention}
-        onPress={handleChatOff}
-        style={{ marginBottom: 20 }}
-      />
+        {Platform.OS === 'android' ? (
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior="padding"
+            keyboardVerticalOffset={30}
+            enabled
+          >
+            <CountryPickerModal />
+          </KeyboardAvoidingView>
+      ) : (
+        <KeyboardAvoidingView behavior="height" enabled>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <Country>
+                <ModalTextLabel>Informe o número do seu celular</ModalTextLabel>
+                <Button
+                  title="Selecione o País"
+                  onPress={async () => handleSelectedCountry()}
+                />
+                {pickupCallingCode &&
+                  <CountryPickerModal />
+                }
+                <ModalTextLabel>Preencha o seu Telefone com DDD</ModalTextLabel>
+                <Form>
+                  <Input
+                    onChangeText={onChangePhoneNumber}
+                    value={phoneNumber}
+                    placeholder="número do seu celular"
+                    keyboardType="numeric"
+                    iconName={'smartphone'}
+                  />
+                </Form>
+                <Button
+                  title="Iniciar a Consulta"
+                  onPress={() => getServerTime()}
+                  enabled={phoneNumber ? true : false}
+                  color={theme.colors.success}
+                />
+              </Country>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        )}
+        <TimeInfoWrapper>
+          <TimeInfo>
+            <TimeInfoLabel>
+              <Time>Tempo Restante</Time>
+            </TimeInfoLabel>
+            <Time>
+              {timeFormatted}
+            </Time>
+          </TimeInfo>
+          <TimeInfo>
+            <TimeInfoLabel>
+              <Time>Tempo Gasto</Time>
+            </TimeInfoLabel>
+            <Time>
+              {spendingTime}
+            </Time>
+          </TimeInfo>
+        </TimeInfoWrapper>
+        <Button
+          title="Finalizar Atendimento"
+          color={theme.colors.attention}
+          onPress={handleChatOff}
+          style={{ marginBottom: 20 }}
+        />
     </Container>
+
   )
 }

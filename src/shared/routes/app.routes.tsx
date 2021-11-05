@@ -13,7 +13,7 @@ import { PaymentOptions } from '../../modules/PaymentOptions';
 import { PaymentWebView } from '../../modules/@components/PaymentWebView';
 import { VideoService } from '../../modules/@components/VideoService';
 import { CallService } from '../../modules/@components/CallService';
-import { MailService } from '../../modules/@components/MailService';
+import { EmailService } from '../../modules/@components/EmailService';
 import { ChatService } from '../../modules/@components/ChatService';
 
  type IconsVariation = {
@@ -133,8 +133,8 @@ export function AppRoutes() {
           }}
         />
         <Stack.Screen
-          name="MailService"
-          component={MailService}
+          name="EmailService"
+          component={EmailService}
           options={{
             headerShown: false
           }}

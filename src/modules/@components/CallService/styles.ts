@@ -1,19 +1,28 @@
 import styled from 'styled-components/native';
-import { Platform, Dimensions } from 'react-native';
+import { Dimensions, TextInput } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 const {height, width} = Dimensions.get('window');
 
 export const Container = styled.View`
-  flex: 1;
   margin-top: 50px;
 `;
 
-export const Content = styled.View``;
+export const Form = styled.View`
+  align-items: center;
+  padding: 4px 4px;
+`;
+
+export const Input = styled(TextInput)`
+  height: 40px;
+  margin: 12px;
+  border-width: 1px;
+  padding: 10px;
+  border-color: ${({ theme }) => theme.colors.secondary};
+`;
 
 export const ConfirmationButton = styled.View`
   flex-direction: row;
@@ -64,6 +73,35 @@ export const TimeInfoLabel = styled.Text`
   color: ${({ theme }) => theme.colors.shape};
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(10)};
+`;
+
+export const Country = styled.View`
+  margin-top: 106px;
+  margin-bottom: ${height-626}; 
+  margin-left: 20px;
+  margin-right: 20px;
+  height: 340px;
+  background-color: ${({ theme }) => theme.colors.background};
+  border-radius: 20px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border: solid 2px ${({ theme }) => theme.colors.secondary};
+  align-items: center;
+`;
+
+export const ModalTextLabel = styled.Text`
+  margin-top: 8px;
+  padding: 10px;
+  font-size: ${RFValue(14)};
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.fonts.medium};
+`;
+
+export const ModalText = styled.Text`
+  padding: 10px;
+  font-size: ${RFValue(14)};
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.fonts.medium};
+  border: solid 1px ${({ theme }) => theme.colors.secondary};
 `;
 
 export const Time = styled.Text`

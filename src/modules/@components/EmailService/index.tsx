@@ -53,7 +53,7 @@ interface AttDetailProps {
   Tipo: string;
 }
 
-export function MailService({ route }: any) {
+export function EmailService({ route }: any) {
   const { attendant } = route.params;
   const { goBack, navigate } = useNavigation();
   const { user } = useAuth();
@@ -234,7 +234,7 @@ export function MailService({ route }: any) {
             name="chevron-back"
           />
         </BackButton>
-        <SeparatorText>Atendimento por Vídeo</SeparatorText>
+        <SeparatorText>Consulta por E-mail</SeparatorText>
       </Separator>
 
       {Platform.OS === 'android' ? (

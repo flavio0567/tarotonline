@@ -47,6 +47,8 @@ interface AuthContextData {
   loading: boolean;
   selectedMode: (mode: string) => Promise<void>;
   mode: string;
+  selectedCountry: (country: string) => Promise<void>;
+  callingCode: string;
 }
 
 interface AuthorizationResponse {
@@ -70,6 +72,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 function AuthProvider({ children }: AuthProviderProps) {
   const [data, setData] = useState<AuthState>({} as AuthState);
   const [mode, setMode] = useState('');
+  const [callingCode, setCallingCode] = useState('');
   const [lastMessage, setLastMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -299,6 +302,10 @@ function AuthProvider({ children }: AuthProviderProps) {
     setMode(mode);
   }
 
+  async function selectedCountry(country: string) {
+    setCallingCode(country);
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -310,7 +317,9 @@ function AuthProvider({ children }: AuthProviderProps) {
         signInWithFacebook,
         signInWithGoogle,
         signOut,
-        loading
+        loading,
+        selectedCountry,
+        callingCode
       }}  
     >
       {children}

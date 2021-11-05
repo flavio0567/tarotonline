@@ -326,7 +326,7 @@ export function ChatService({ route }: any) {
             name="chevron-back"
           />
         </BackButton>
-        <SeparatorText>Atendimento Chat</SeparatorText>
+        <SeparatorText>Consulta por Chat</SeparatorText>
       </Separator>
 
       {Platform.OS === 'android' ? (

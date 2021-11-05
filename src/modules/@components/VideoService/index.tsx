@@ -330,7 +330,7 @@ export function VideoService({ route }: any) {
             name="chevron-back"
           />
         </BackButton>
-        <SeparatorText>Atendimento por Vídeo</SeparatorText>
+        <SeparatorText>Consulta por Vídeo</SeparatorText>
       </Separator>
 
       {Platform.OS === 'android' ? (
