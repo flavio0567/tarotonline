@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 import { useAuth } from '../../shared/hooks/auth';
 import { api } from '../../shared/service/api';
@@ -9,12 +11,16 @@ import { LoadAnimation } from '../../shared/components/LoadAnimation';
 import { AttendantCard } from '../@components/AttendantCard';
 import { AttendantDTO } from '../../dtos/AttendantDTO';
 
+import { Search } from '../@components/Search';
+
 import {
   Container,
   Header,
   SearchAttendant,
   UserWrapper,
   UserInfo,
+  UserAvatar,
+  UserPanelText,
   Button,
   Photo,
   User,
@@ -28,6 +34,8 @@ import {
   AttendantList,
 } from './styles';
 
+type NavProps = NavigationProp<ParamListBase>;
+
 export function Dashboard() {
   const [attendants, setAttendants] = useState<AttendantDTO[]>([]);
   const [pagination, setPagination] = useState([]);
@@ -35,24 +43,22 @@ export function Dashboard() {
   const [pricePerMinute, setPricePerMinute] = useState(0);
   const [loading, setLoading] = useState(true);
   const { user, signOut } = useAuth();
+  const navigation = useNavigation<NavProps>();
   
-  // const [selectedLanguage, setSelectedLanguage] = useState(
-  //   'Pesquise seu Consultor por Especialidade');
-  // const pickerRef = useRef();
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    'Pesquise seu Consultor por Especialidade');
+  const pickerRef = useRef();
 
-  // function Open() {
-  //   pickerRef.current.focus();
-  // }
+  function Open() {
+    pickerRef.current!.focus();
+  }
   
-  // function Close() {
-  //   pickerRef.current.blur();
-  // }
+  function Close() {
+    pickerRef.current!.blur();
+  }
 
   useEffect(() => {
     let isMounted = true;
-
-    const { APIKEY } = process.env;
-    api.defaults.headers.APIKEY = APIKEY;
 
     async function fetchAttendants() {
       const [user, token] = await AsyncStorage.multiGet([
@@ -116,6 +122,18 @@ export function Dashboard() {
       );
   }, []);
 
+  const handlSearchAttendant = useCallback((_item) => {
+    console.log('handleSearchAttendant:', _item);
+  }, []);
+  
+  const handleOtherOptions = () => {
+    navigation.navigate(
+      'DetailsOfAnAttendant',
+      {
+        screen: 'OtherOptions', params: { Link: 'https://www.tarotonline.com.br/Cliente/index.php', user }
+      });
+  }
+
   return (
     <Container>
       <Header>
@@ -123,13 +141,27 @@ export function Dashboard() {
           <UserInfo>
             {user.avatar
               ? (
-                <Photo
-                  source={{ uri: user.avatar }}>
-                </Photo>
+                <UserAvatar>
+                  <Photo
+                    source={{ uri: user.avatar }}
+                  />
+                    <Button
+                      onPress={handleOtherOptions}
+                    >
+                    <UserPanelText>Meu Painel</UserPanelText>
+                  </Button>
+                </UserAvatar>
               ) : (
-                <Photo
-                  source={{ uri: `https://ui-avatars.com/api/?name=${user.name}` }}>
-                </Photo>
+                <UserAvatar>
+                  <Photo
+                    source={{ uri: `https://ui-avatars.com/api/?name=${user.name}` }}
+                  />
+                    <Button
+                    onPress={handleOtherOptions}
+                  >
+                    <UserPanelText>Meu Painel</UserPanelText>
+                  </Button>
+                </UserAvatar>
               )}
             <User>
               <UserGreeting>Olá,</UserGreeting>
@@ -150,9 +182,9 @@ export function Dashboard() {
               <BalanceText>R$ {(user.qtdcreditos).toFixed(2)}</BalanceText>
             </BalanceView>
           </SideWrapper>
-         </UserWrapper>
+        </UserWrapper>
       </Header>
-      {/* <Text>Selecione seu Consultor pela Especialidade</Text> */}
+      {/* <UserGreeting>Selecione seu Consultor pela Especialidade</UserGreeting> */}
       {/* <SearchAttendant
         // ref={pickerRef}
         numberOfLines={1}
@@ -161,10 +193,10 @@ export function Dashboard() {
         onValueChange={(_itemValue, itemIndex) =>
           handlSearchAttendant(_itemValue)
         }>
-        {values.map((v, i) => {
+        {attendants.map((v, i) => {
           return (
             <SearchAttendant mode="dropdown">
-              <SearchAttendant.Item label="21" value="21" ></SearchAttendant.Item>
+              <SearchAttendant.Item label="21" value="21" >{ v }</SearchAttendant.Item>
             </SearchAttendant>
             )
           })}

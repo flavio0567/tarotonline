@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components/native';
 import { Platform, Dimensions } from 'react-native';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { Picker } from '@react-native-picker/picker';
 
 import { MotiImage as Image } from 'moti';
@@ -20,6 +21,61 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.shape};
 `;
 
+export const Header = styled.View`
+  width: 100%;
+
+  background-color: ${({ theme }) => theme.colors.shape};
+  padding: ${Platform.OS === 'ios' ? (getStatusBarHeight() - 12) : 0}px 14px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+`;
+
+export const UserWrapper = styled.View`
+  width: 100%;
+  /* height: ${RFPercentage(4)}px; */
+
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const UserInfo = styled.View`
+  width: 250px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const User = styled.View`
+  /* margin-top: 10px; */
+  margin-left: 5px;
+`;
+
+export const UserName = styled.Text`
+  width: ${RFValue(200)}px;
+  height: ${RFValue(34)}px;
+  color: ${({ theme }) => theme.colors.text};
+
+  font-size: ${RFValue(14)}px;
+  font-family: ${({ theme }) => theme.fonts.bold};
+`;
+
+export const SideWrapper = styled.View`
+  flex-direction: column;
+  margin-top: ${RFValue(10)}px;
+`;
+
+export const BalanceView = styled.View`
+  flex: 1;
+  flex-direction: column;
+`;
+
+export const BalanceText = styled.Text`
+  color: ${({ theme }) => theme.colors.text};
+
+  font-size: ${RFValue(8)}px;
+`;
+
 export const PhotoWrapper = styled.View`
 `;
 
@@ -38,10 +94,10 @@ export const Photo = styled(Image).attrs({
     repeat: 5
   }
 })`
-  width: ${RFValue(210)}px;
-  height: ${RFValue(210)}px;
+  width: ${RFValue(190)}px;
+  height: ${RFValue(190)}px;
   margin-top: 10px;
-  margin-left: ${width / 2 - 105}px;
+  margin-left: ${width / 2 - 98}px;
 `;
 
 export const AttendantWrapper = styled.View`
@@ -112,6 +168,14 @@ export const Icon = styled(Ionicons)`
   font-size: ${RFValue(22)}px;
 `;
 
+export const NavBack = styled.SafeAreaView`
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: ${RFValue(28)}px;
+  /* background-color: ${({ theme }) => theme.colors.primary}; */
+`;
+
 export const Separator = styled.SafeAreaView`
   flex-direction: row;
   justify-content: center;
@@ -139,7 +203,7 @@ export const ConfirmationButton = styled.View`
 `;
 
 export const PickerView = styled.View`
-  margin: ${Platform.OS === 'ios' ? RFValue(-26) : RFValue(0)}px;
+  margin: ${Platform.OS === 'ios' ? RFValue(-18) : RFValue(0)}px;
   /* padding: 20px; */
   /* background-color: ${({ theme }) => theme.colors.background}; */
 `;

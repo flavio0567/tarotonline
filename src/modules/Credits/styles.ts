@@ -15,11 +15,18 @@ export const BoxSelection = styled.View`
   margin-top: 106px;
   margin-left: 20px;
   margin-right: 20px;
-  height: 276px;
+  height: 140px;
   background-color: ${({ theme }) => theme.colors.secondary};
   border-radius: 20px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border: solid 2px ${({ theme }) => theme.colors.secondary};
+`;
+
+export const SelectionWrapper = styled.View`
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
 `;
 
 export const ModalTextLabel = styled.Text`
@@ -43,7 +50,7 @@ export const TitleText = styled.Text`
   color: ${({ theme }) => theme.colors.secondary};
   font-size: 18px;
   font-weight: bold;
-  margin-left: ${width / 8}px;
+  margin-left: ${width / 3.8}px;
 `;
 
 export const Separator = styled.View`

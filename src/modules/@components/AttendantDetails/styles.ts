@@ -8,7 +8,7 @@ import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
 interface TypeProps {
-  type: 'DISPONIVEL' | 'OCUPADO';
+  type: string;
 }
 
 export const Container = styled.View`
@@ -119,9 +119,7 @@ export const Button = styled(RectButton)`
   width: ${RFValue(42)}px;
   height: ${RFValue(42)}px;
   background-color: ${({ theme }) => theme.colors.primary};
-  /* border: 1px; */
   border-radius: 25px;
-  /* margin: 5px; */
 `;
 
 export const ButtonText = styled.Text`
@@ -134,14 +132,12 @@ export const Icon = styled(Ionicons)`
   color: ${({ theme }) => theme.colors.secondary};
   font-size: ${RFValue(20)}px;
   margin-bottom: ${RFValue(10)}px;
-  /* background-color: ${({ theme }) => theme.colors.success}; */
 `;
 
 export const IconStart = styled(AntDesign)`
   color: ${({ theme }) => theme.colors.gold};
   font-size: ${RFValue(12)}px;
   margin-bottom: ${RFValue(12)}px;
-  /* background-color: ${({ theme }) => theme.colors.success}; */
 `;
 
 export const Separator = styled.View`

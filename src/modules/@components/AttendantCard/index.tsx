@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { RectButtonProps } from 'react-native-gesture-handler';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
+import { Entypo } from '@expo/vector-icons';
 
 import Intl from 'intl';
 import 'intl/locale-data/jsonp/pt-BR';
@@ -19,6 +21,7 @@ import {
   ButtonWrapper,
   Button,
   IconService,
+  ChatIconService,
   PricePerMinuteText,
   Availability,
   AvailabilityWrapper,
@@ -33,14 +36,14 @@ interface Props extends RectButtonProps {
   }
 };
 
-type icon = {
-  available: 'event-available',
-  unavailable: 'event-busy'
-};
+// type icon = {
+//   available: 'event-available',
+//   unavailable: 'event-busy'
+// };
 
-interface TypeAvailability {
-  type: 'DISPONIVEL' | 'OCUPADO';
-}
+// interface TypeAvailability {
+//   type: 'DISPONIVEL' | 'OCUPADO';
+// }
 
 interface CadastroProps {
   Codigo: string;
@@ -75,9 +78,12 @@ interface ClientCommentsProps {
   }
 }
 
+type NavProps = NavigationProp<ParamListBase>;
+
 export function AttendantCard({attendant, ...rest }: Props) {
   const { item } = attendant;
-  const { navigate } = useNavigation();
+  const navigation = useNavigation<NavProps>();
+
   const { selectedMode } = useAuth();
   const [loading, setLoading] = useState(false);
   const [minuteValue, setMinuteValue] = useState(0);
@@ -119,7 +125,7 @@ export function AttendantCard({attendant, ...rest }: Props) {
             const { Dados } = res.data;
             setLoading(false);
             setClientComments(Dados);
-            navigate(
+            navigation.navigate(
               'DetailsOfAnAttendant',
               {
                 screen: 'AttendantDetails', params: { item, clientComments: res.data, attendantCard: attendantDescription, mode }
@@ -180,7 +186,7 @@ export function AttendantCard({attendant, ...rest }: Props) {
               <Button
                 onPress={() => handleSelection('chat')}
               >
-                <IconService name="ios-chatbubbles" />
+                <ChatIconService name="chat" />
               </Button>
             )
           }

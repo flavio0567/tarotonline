@@ -4,10 +4,12 @@ import {
   Platform,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Text
 } from 'react-native';
 
-import { CountryPickerModal } from '../../@components/CountryPickerModal';
+import DropDownPicker from 'react-native-dropdown-picker';
+
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../../shared/service/api';
 import { useAuth } from '../../../shared/hooks/auth';
@@ -36,7 +38,6 @@ import {
   ModalText,
   ModalTextLabel,
   Form,
-  // Input
 } from './styles';
 
 interface ConfigProps {
@@ -68,11 +69,27 @@ export function CallService({ route }: any) {
   const { attendant } = route.params;
   const { goBack, navigate } = useNavigation();
   const { user, callingCode } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+
   const theme = useTheme();
 
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('55');
+  const [items, setItems] = useState([
+    {label: '🇧🇷 Brazil', value: '55'},
+    {label: '🇵🇹 Portugal', value: '351'},
+    {label: '🇺🇸 Estados Unidos', value: '1'},
+    {label: '🇨🇦 Canadá', value: '01'},
+    {label: '🇯🇵 Japão', value: '81'},
+    {label: '🇫🇷 França', value: '33'},
+    {label: '🇮🇹 Itália', value: '39'},
+    {label: '🇪🇸 Espanha', value: '34'},
+    {label: '🇬🇧 Reino Unido', value: '44'},
+    {label: '🇮🇪 Irlanda', value: '353'},
+    {label: '🇩🇪 Alemanha', value: '49'}
+  ]);
+
   const [phoneNumber, onChangePhoneNumber] = useState('');
-  const [pickupCallingCode, setPickupCallingCode] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState('');
   const [serviceCode, setServiceCode] = useState(0);
   const [attDetail, setAttDetail] = useState<AttDetailProps>();
   const [time, setTime] = useState(0);
@@ -88,41 +105,47 @@ export function CallService({ route }: any) {
 
   const [serverTime, setServerTime] = useState(0);
 
-  const getServerTime = async () => {
-    console.log('P A I S:', selectedCountry)
+  const startNewService = async () => {
     await api.get('outros/hora-servidor/')
       .then((res) => {
         const { Mktime } = res.data;
         console.log('serverTime:', Mktime);
         setServerTime(Mktime);
       })
-    console.log('pais selecionado aqui:', selectedCountry);
+
+    setIsLoading(true);
     await api.post(`atendimentos/telefone/219/`,
       {
-        "TelefoneDDI": selectedCountry,
+        "TelefoneDDI": value,
         "Telefone": phoneNumber
       }
     )
-      .then((responseCall) => {
-        console.log('responseCall:', responseCall);
-        const { Atendimento } = responseCall.data;
+    .then((responseCall) => {
+      setIsLoading(false);
+      
+      console.log('responseCall:', responseCall);
+      const { Atendimento } = responseCall.data;
 
-        setServiceCode(Atendimento.Codigo);
+      setServiceCode(Atendimento.Codigo);
 
-        const { ApiKey, DatabaseURL, Hash } = responseCall.data.Firebase;
-  
-        const config = {
-          apiKey: ApiKey,
-          databaseURL: DatabaseURL,
-          hash: Hash
-        }
+      const { ApiKey, DatabaseURL, Hash } = responseCall.data.Firebase;
 
-        init(config);
-      })
+      const config = {
+        apiKey: ApiKey,
+        databaseURL: DatabaseURL,
+        hash: Hash
+      }
+      init(config);
+    })
+      .catch((error) => {
+        setIsLoading(false);
+        console.log('error no call atendimentos/telefone/att', error);
+        handleChatOff();
+    })
   }
 
   useEffect(() => {
-    const timer = setTimeout(function () { 
+    const timer = setTimeout(function () {
       setServerTime(serverTime + 1);
       handleRemainingMinutes();
       handleRemainingTime();
@@ -130,7 +153,7 @@ export function CallService({ route }: any) {
     }, 1000)
     return () => clearTimeout(timer);
   }, [serverTime]);
-  
+
   const handleRemainingMinutes = () => {
     if (attDetail?.IsIniciadoCobranca === "S") {
       setTime(serverTime - attDetail.InicioCobranca);
@@ -211,32 +234,43 @@ export function CallService({ route }: any) {
 	}
 
   function init(config: ConfigProps) {
+    let isMounted = true;
     const { apiKey, databaseURL, hash} = config;
 
     const app = initializeApp({apiKey, databaseURL});
     const database = getDatabase(app);
 
-    const databaseDataRef = ref(
-      database,
-      `/atendimentos/${hash}/dados/`
-    );
 
-    onValue(
-      databaseDataRef,
-      (snapshot: { exists: () => any; val: () => any; }) => {
-        if (snapshot.exists()) {
-          setAttDetail(snapshot.val());
-        }
+    try {
+      const databaseDataRef = ref(
+        database,
+        `/atendimentos/${hash}/dados/`
+      );
+
+      if (isMounted) {
+        onValue(
+          databaseDataRef,
+          (snapshot: { exists: () => any; val: () => any; }) => {
+            if (snapshot.exists()) {
+              setAttDetail(snapshot.val());
+            } else {
+              console.log('snapshot not found:', snapshot);
+            }
+          }
+        );
+      };
+    } catch (error) {
+      console.log('Finishing init():', error);
+    } finally {
+      if (isMounted) {
+        setIsLoading(false);
       }
-    );
+    }
     
+    return () => {
+      isMounted = false;
+    }
   };
-
-  function handleSelectedCountry() {
-    console.log('selecionando pais', callingCode)
-    setPickupCallingCode(!pickupCallingCode);
-    setSelectedCountry(callingCode);
-  }
 
   function handleChatOff() {
     api.post(`atendimentos/finalizar/${serviceCode}/`)
@@ -266,21 +300,55 @@ export function CallService({ route }: any) {
             behavior="padding"
             keyboardVerticalOffset={30}
             enabled
-          >
-            <CountryPickerModal />
+           >
+            <Country>
+              <ModalTextLabel>Informe o número do seu celular</ModalTextLabel>
+                <DropDownPicker
+                  containerStyle={{
+                    backgroundColor: theme.colors.success
+                  }}
+                  open={open}
+                  value={value}
+                  items={items}
+                  setOpen={setOpen}
+                  setValue={setValue}
+                  setItems={setItems}
+               />
+              <ModalTextLabel>Preencha o seu Telefone com DDD</ModalTextLabel>
+              <Form>
+                <Input
+                  onChangeText={onChangePhoneNumber}
+                  value={phoneNumber}
+                  placeholder="número do seu celular"
+                  keyboardType="numeric"
+                  iconName={'smartphone'}
+                />
+              </Form>
+              <Button
+                title="Iniciar a Consulta"
+                onPress={() => startNewService()}
+                enabled={phoneNumber ? true : false}
+                color={theme.colors.success}
+              />
+            </Country>
           </KeyboardAvoidingView>
       ) : (
         <KeyboardAvoidingView behavior="height" enabled>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <Country>
-                <ModalTextLabel>Informe o número do seu celular</ModalTextLabel>
-                <Button
-                  title="Selecione o País"
-                  onPress={async () => handleSelectedCountry()}
+                <ModalTextLabel>Selecione o País</ModalTextLabel>
+                  <DropDownPicker
+                    containerStyle={{
+                      backgroundColor: theme.colors.background,
+                      borderColor: theme.colors.primary
+                    }}
+                    open={open}
+                    value={value}
+                    items={items}
+                    setOpen={setOpen}
+                    setValue={setValue}
+                    setItems={setItems}
                 />
-                {pickupCallingCode &&
-                  <CountryPickerModal />
-                }
                 <ModalTextLabel>Preencha o seu Telefone com DDD</ModalTextLabel>
                 <Form>
                   <Input
@@ -293,9 +361,10 @@ export function CallService({ route }: any) {
                 </Form>
                 <Button
                   title="Iniciar a Consulta"
-                  onPress={() => getServerTime()}
+                  onPress={() => startNewService()}
                   enabled={phoneNumber ? true : false}
                   color={theme.colors.success}
+                  loading={isLoading}
                 />
               </Country>
             </TouchableWithoutFeedback>

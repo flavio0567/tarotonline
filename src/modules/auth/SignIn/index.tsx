@@ -38,7 +38,7 @@ import {
 } from './styles';
 
 export function SignIn() {
-  const {height, width} = Dimensions.get('window');
+  const {width} = Dimensions.get('window');
 
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
@@ -122,7 +122,6 @@ export function SignIn() {
             />
           </LogoView>
           <Header>
-            {/* <CardIcon /> */}
           </Header>
           <Content>
             <UserLogin>

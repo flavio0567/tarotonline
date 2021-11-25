@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
 import { useTheme } from 'styled-components';
 
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
@@ -18,8 +17,8 @@ import {
 
 type NavProps = NavigationProp<ParamListBase>;
 
-export function PaymentWebView({ route }: any) {
-  const { Link, attendant, paymentMethods, price, mode } = route.params;
+export function OtherOptionsWebView({ route }: any) {
+  const { Link, user } = route.params;
   const navigation = useNavigation<NavProps>();
   const theme = useTheme();
 
@@ -28,20 +27,17 @@ export function PaymentWebView({ route }: any) {
 
   const js = `window.alert('Você será direcionado para a site TarotOnline. A qualquer momento use a seta no canto superior esquerdo para retornar ao app!')`;
 
-  // const localFile = Platform.OS === 'ios' ? require('../../assets/chat.html') :
-  //   { uri: 'file:///android_asset/chat.html' };
-  
   return (
     <Container>
       <Separator>
         <BackButton
-          onPress={() => navigation.navigate('SelectedAttendant', {attendant, mode})}
+          onPress={() => navigation.navigate('Main')}
         >
           <Icon
             name="chevron-back"
           />
         </BackButton>
-        <SeparatorText>Comprar Créditos</SeparatorText>
+        <SeparatorText>Tarot Online</SeparatorText>
       </Separator>
       {!isLoaded &&
         <Progress.Bar

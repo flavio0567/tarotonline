@@ -1,20 +1,18 @@
 // @ refresh reset
-import React, { useState, useEffect } from 'react';
-import { Platform, KeyboardAvoidingView, SafeAreaView} from 'react-native';
-import { WebView } from 'react-native-webview';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Platform,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard
+} from 'react-native';
 
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../../shared/service/api';
-import { useAuth } from '../../../shared/hooks/auth';
 import { Button } from '../../../shared/components/Button';
 import { useTheme } from 'styled-components';
-import { initializeApp } from 'firebase/app';
-
-import {
-  getDatabase,
-  ref,
-  onValue
-} from 'firebase/database';
+import { Input } from '../../../shared/components/Input';
 
 import {
   Container,
@@ -22,17 +20,11 @@ import {
   Separator,
   SeparatorText,
   BackButton,
-  TimeInfoWrapper,
-  TimeInfoLabel,
-  TimeInfo,
-  Time,
+  PriceLabel,
+  Form,
+  Content,
+  MessageText
 } from './styles';
-
-interface ConfigProps {
-  apiKey: string;
-  databaseURL: string;
-  hash: string;
-}
 
 interface AttDetailProps {
   AttUltimoKey: number;
@@ -53,15 +45,23 @@ interface AttDetailProps {
   Tipo: string;
 }
 
+type NavProps = NavigationProp<ParamListBase>;
+
 export function EmailService({ route }: any) {
   const { attendant } = route.params;
-  const { goBack, navigate } = useNavigation();
-  const { user } = useAuth();
+  const navigation = useNavigation<NavProps>();
+
+  const [isLoading, setIsLoading] = useState(false);
   const theme = useTheme();
 
-  const [serviceCode, setServiceCode] = useState(0);
-  const { Cadastro } = attendant;
-  const [iFrame, setIframe] = useState('');
+  // const [serviceCode, setServiceCode] = useState(0);
+  const [consultantName, setConsultantName] = useState('');
+  const [relatedName, setRelatedName] = useState('');
+  const [dob, setDob] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+
+
   const [attDetail, setAttDetail] = useState<AttDetailProps>();
   const [time, setTime] = useState(0);
   const [amountSeconds, setAmountSeconds] = useState(0);
@@ -81,40 +81,59 @@ export function EmailService({ route }: any) {
       await api.get('outros/hora-servidor/')
         .then((res) => {
           const { Mktime } = res.data;
+          console.log('serverTime:', Mktime);
           setServerTime(Mktime);
-        })
-   
-      await api.post(`atendimentos/email/219/`)
-        .then((responseEmail) => {
-          console.log('responseEmail:', responseEmail);
-          const { Atendimento } = responseEmail.data;
-          setServiceCode(Atendimento.Codigo);
-
-          const { ApiKey, DatabaseURL, Hash } = responseEmail.data.Firebase;
-    
-          const config = {
-            apiKey: ApiKey,
-            databaseURL: DatabaseURL,
-            hash: Hash
-          }
-
-          init(config);
+          startTimerCounter(Mktime);
         })
     }
     getServerTime();
-
   }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(function () { 
-      setServerTime(serverTime + 1);
-      handleRemainingMinutes();
-      handleRemainingTime();
-      handleSpendingTime();
-    }, 1000)
-    return () => clearTimeout(timer);
-  }, [serverTime]);
   
+  const startNewService = async () => {
+    setIsLoading(true);
+    console.log(
+      'Nome:', consultantName,
+      'NomeEnvolvido:', relatedName,
+      'DataNascimento:', dob,
+      'Assunto:', subject,
+      'Mensagem:', message
+    );
+    await api.post(`atendimentos/email/219/`,
+      {
+        Nome: consultantName,
+        NomeEnvolvido: relatedName,
+        DataNascimento: dob,
+        Assunto: subject,
+        Mensagem: message
+      }
+    )
+    .then((responseEmail) => {
+      console.log('responseEmail:', responseEmail.headers)
+      setIsLoading(false);
+      
+      handleServiceOff();
+
+    })
+      .catch((error) => {
+        setIsLoading(false);
+        console.log('error no call atendimentos/email/att', error);
+        handleServiceOff();
+    })
+  }
+
+  const startTimerCounter = (Mktime: number) => {
+    console.log('Mktime in useMemo:', Mktime);
+    useMemo(() => {
+      const timer = setTimeout(function () {
+        setServerTime(Mktime + 1);
+        handleRemainingMinutes();
+        handleRemainingTime();
+        handleSpendingTime();
+      }, 1000)
+      return () => clearTimeout(timer);
+    }, [serverTime]);
+  };
+
   const handleRemainingMinutes = () => {
     if (attDetail?.IsIniciadoCobranca === "S") {
       setTime(serverTime - attDetail.InicioCobranca);
@@ -194,105 +213,123 @@ export function EmailService({ route }: any) {
 		
 	}
 
-  function init(config: ConfigProps) {
-    const { apiKey, databaseURL, hash} = config;
-
-    const app = initializeApp({apiKey, databaseURL});
-    const database = getDatabase(app);
-
-    const databaseDataRef = ref(
-      database,
-      `/atendimentos/${hash}/dados/`
-    );
-
-    onValue(
-      databaseDataRef,
-      (snapshot: { exists: () => any; val: () => any; }) => {
-        if (snapshot.exists()) {
-          setAttDetail(snapshot.val());
-        }
-      }
-    );
-  };
-
-  function handleChatOff() {
-    api.post(`atendimentos/finalizar/${serviceCode}/`)
-      .then((res) =>
-        console.log('retorno no final:', res.data)
-      );
-
-    navigate('Main');
+  function handleServiceOff() {
+    navigation.navigate('Main');
   }
 
   return (
-    <Container>
-      <Separator>
-        <BackButton
-          onPress={() => goBack()}
-        >
-          <Icon
-            name="chevron-back"
-          />
-        </BackButton>
-        <SeparatorText>Consulta por E-mail</SeparatorText>
-      </Separator>
-
-      {Platform.OS === 'android' ? (
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior="padding"
-          keyboardVerticalOffset={30}
-          enabled
-        >
-          {attDetail?.IsIniciadoCobranca === "S" &&
-            <WebView
-              originWhitelist={["*"]}
-              automaticallyAdjustContentInsets={false}
-              allowsInlineMediaPlayback
-              source={{ uri: `${iFrame}`}}
+      <Container>
+        <Separator>
+          <BackButton
+            onPress={() => navigation.goBack()}
+          >
+            <Icon
+              name="chevron-back"
             />
-          }
-          {/* {chat} */}
+          </BackButton>
+          <SeparatorText>Consulta por E-mail</SeparatorText>
+        </Separator>
 
-        </KeyboardAvoidingView>
-      ): (
-          <SafeAreaView style={{ flex: 1 }}>
-            {attDetail?.IsIniciadoCobranca === "S" &&
-              <WebView
-                useWebKit
-                originWhitelist={["*"]}
-                allowsInlineMediaPlayback
-                source={{ uri: `${iFrame}` }}
+        {Platform.OS === 'android' ? (
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior="padding"
+            keyboardVerticalOffset={30}
+            enabled
+           >
+            <Content>
+              <PriceLabel>Valor: R$ 49,90</PriceLabel>
+              <Form>
+                <Input
+                  onChangeText={setConsultantName}
+                  value={consultantName}
+                  placeholder="Nome"
+                  iconName={'user'}
+                />
+                <Input
+                  onChangeText={setRelatedName}
+                  value={relatedName}
+                  placeholder="Nome do Envovido"
+                  iconName={'users'}
+                />
+                <Input
+                  onChangeText={setDob}
+                  value={dob}
+                  style={{ fontSize: 14 }}
+                  placeholder="Data de Nasc. Ex.:14/11/1989"
+                  iconName={'calendar'}
+                />
+                <Input
+                  onChangeText={setSubject}
+                  value={subject}
+                  placeholder="Assunto"
+                  iconName={'book-open'}
+                />
+                <Input
+                  onChangeText={setMessage}
+                  value={message}
+                  placeholder="Mensagem"
+                  iconName={'file-text'}
+                />
+              </Form>
+              <Button
+                title="Enviar Consulta"
+                onPress={() => startNewService()}
+                enabled={consultantName ? true : false}
+                color={theme.colors.success}
               />
-            }
-            {/* {chat} */}
-
-          </SafeAreaView>
-      )}
-      <TimeInfoWrapper>
-        <TimeInfo>
-          <TimeInfoLabel>
-            <Time>Tempo Restante</Time>
-          </TimeInfoLabel>
-          <Time>
-            {timeFormatted}
-          </Time>
-        </TimeInfo>
-        <TimeInfo>
-          <TimeInfoLabel>
-            <Time>Tempo Gasto</Time>
-          </TimeInfoLabel>
-          <Time>
-            {spendingTime}
-          </Time>
-        </TimeInfo>
-      </TimeInfoWrapper>
-      <Button
-        title="Finalizar Atendimento"
-        color={theme.colors.attention}
-        onPress={handleChatOff}
-        style={{ marginBottom: 20 }}
-      />
+            </Content>
+          </KeyboardAvoidingView>
+      ) : (
+        <KeyboardAvoidingView behavior="position" enabled>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <Content>
+              <PriceLabel>Valor: R$ 49,90</PriceLabel>
+              <Form>
+                <Input
+                  onChangeText={setConsultantName}
+                  value={consultantName}
+                  placeholder="Nome"
+                  iconName={'user'}
+                />
+                <Input
+                  onChangeText={setRelatedName}
+                  value={relatedName}
+                  placeholder="Nome do(a) Envovido(a)"
+                  iconName={'users'}
+                />
+                <Input
+                  onChangeText={setDob}
+                  value={dob}
+                  style={{ fontSize: 14 }}
+                  placeholder="Data de Nasc. Ex.:14/11/1989"
+                  iconName={'calendar'}
+                />
+                <Input
+                  onChangeText={setSubject}
+                  value={subject}
+                  placeholder="Assunto"
+                  iconName={'book-open'}
+                  />
+                  
+                <MessageText
+                    onChangeText={setMessage}
+                    value={message}
+                    placeholder="Mensagem"
+                    multiline={true}
+                />
+              </Form>
+              <Button
+                title="Enviar Consulta"
+                onPress={() => startNewService()}
+                enabled={consultantName ? true : false}
+                color={theme.colors.success}
+              />
+              </Content>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        )}
     </Container>
+
   )
 }

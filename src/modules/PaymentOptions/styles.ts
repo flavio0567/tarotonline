@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { Platform, SafeAreaView } from 'react-native';
+import { Platform, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -40,7 +40,7 @@ export const Icon = styled(Ionicons)`
 
 export const Content = styled.ScrollView.attrs({
   contentContainerStyle: {
-    marginLeft: 10,
+    // marginLeft: 10,
     paddingBottom: 10
   },
   showsVerticalScrollIndicator: false
@@ -55,6 +55,14 @@ export const IconView = styled.View`
   border-radius: ${Platform.OS === 'ios' ? RFValue(36) : RFValue(50)}px;
   background-color: ${({ theme }) => theme.colors.secondary};
   padding: 10px;
+`;
+
+export const CreditImage = styled.Image`
+  margin: 4px;
+`;
+
+export const BankImage = styled.Image`
+  margin: 12px;
 `;
 
 export const CardIcon = styled(Ionicons).attrs({
@@ -78,14 +86,14 @@ export const SelectionText = styled.Text`
 `;
 
 export const Box = styled(RectButton)`
-  width: ${RFValue(142)}px;
+  width: ${RFValue(154)}px;
   height: ${RFValue(152)}px;
   border-radius: 10px;
   margin: 10px;
 `;
 
 export const BoxLogo = styled.View`
-  width: ${RFValue(142)}px;
+  width: ${RFValue(154)}px;
   height: ${RFValue(42)}px;
   align-items: center;
   justify-content: center;
@@ -97,13 +105,13 @@ export const BoxLogo = styled.View`
 `;
 
 export const ImageIcon = styled.Image`
-  /* margin: ${Platform.OS === 'ios' ? RFValue(10) : RFValue(4)}px; */
+  margin: ${Platform.OS === 'ios' ? RFValue(6) : RFValue(4)}px;
 `;
 
 export const BoxCards = styled.View`
-  width: ${RFValue(142)}px;
-  height: ${RFValue(110)}px;
-  margin-top: 2px;
+  width: ${RFValue(154)}px;
+  height: ${RFValue(114)}px;
+  margin-top: 3px;
   border-radius: 6px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   background-color: ${({ theme }) => theme.colors.secondary};
@@ -112,31 +120,31 @@ export const BoxCards = styled.View`
 export const CardView = styled.View`
   flex-direction: row;
   margin: 10px;
-  padding-top: 10px;
+  padding-top: 6px;
 `;
 
 export const CardText = styled.Text`
   width: ${RFValue(120)};
-  font-family: ${({ theme }) => theme.fonts.medium};
+  font-family: ${({ theme }) => theme.fonts.bold};
+  font-size: 13px;
   color: ${({ theme }) => theme.colors.primary};
-  padding-left: 8px;
-  margin-top: 4px;
+  padding-left: 4px;
+  margin-top: 8px;
 `;
-
 
 export const MultiCardView = styled.View`
   flex-direction: column;
 `;
 
 export const BoxTimeToRelease = styled.View`
-  margin: 6px;
+  margin: 4px;
   border-radius: 5px;
-  background-color: ${({ theme}) => theme.colors.primary};
+  background-color: ${({ theme}) => theme.colors.primary_dark};
 `;
 
 export const TimeToReleaseTextText = styled.Text`
   font-size: ${RFValue(11)};
-  font-family: ${({ theme }) => theme.fonts.medium};
+  font-family: ${({ theme }) => theme.fonts.bold};
   color: ${({ theme }) => theme.colors.attention};
   text-align: center;
   padding: 4px;

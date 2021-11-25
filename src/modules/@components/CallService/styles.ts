@@ -12,8 +12,9 @@ export const Container = styled.View`
 `;
 
 export const Form = styled.View`
+  /* margin-top: 64px; */
   align-items: center;
-  padding: 4px 4px;
+  padding: 6px 6px;
 `;
 
 export const Input = styled(TextInput)`
@@ -80,12 +81,13 @@ export const Country = styled.View`
   margin-bottom: ${height-626}; 
   margin-left: 20px;
   margin-right: 20px;
+  padding: 14px;
   height: 340px;
   background-color: ${({ theme }) => theme.colors.background};
   border-radius: 20px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border: solid 2px ${({ theme }) => theme.colors.secondary};
-  align-items: center;
+  /* align-items: center; */
 `;
 
 export const ModalTextLabel = styled.Text`

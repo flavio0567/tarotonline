@@ -75,8 +75,14 @@ function AuthProvider({ children }: AuthProviderProps) {
   const [callingCode, setCallingCode] = useState('');
   const [lastMessage, setLastMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [codeClient, setCodeClient] = useState(0);
+  const [token, setToken] = useState('');
+  const [expiration, setExpiration] = useState(new Date(''));
 
   useEffect(() => {
+    const { APIKEY } = process.env;
+    api.defaults.headers.APIKEY = APIKEY;
+
     async function clearAll(): Promise<void> {
       await AsyncStorage.multiRemove([
         '@TarotOnline:user',
@@ -93,17 +99,14 @@ function AuthProvider({ children }: AuthProviderProps) {
         '@TarotOnline:token',
       ]);
 
-      const { APIKEY } = process.env;
-      api.defaults.headers.APIKEY = APIKEY;
-      
       if (user[1] && token[1]) {
         api.defaults.headers.TOKEN = JSON.parse(token[1]).token;
-
+        console.log('expiration in context:', JSON.parse(token[1]).expiration)
         setData({
           user: JSON.parse(user[1]),
           token: {
             token: JSON.parse(token[1]).token,
-            expiration: new Date()
+            expiration: JSON.parse(token[1]).expiration
           }
         });
       }
@@ -111,6 +114,34 @@ function AuthProvider({ children }: AuthProviderProps) {
     }
     loadStorageData();
   }, []);
+
+  const getTokenFromPlatform = async (provider: string, token: string, avatar: string) => {
+    console.log('prvider:', provider, 'token:', token, 'avatart:', avatar)
+    try {
+      await api.post('/autenticacao/login-social/', {
+        "Provedor": provider,
+        "AccessToken": token
+      })
+        .then(async (res) => {
+          const { CodigoCliente, Token, DataExpiracao } = res.data;
+          console.log('retorno da autenticacao do login-social:', res.data)
+          api.defaults.headers.TOKEN = Token;
+
+          setCodeClient(CodigoCliente);
+          setToken(Token);
+          setExpiration(DataExpiracao);
+          
+          await AsyncStorage.setItem(
+            '@TarotOnline:token', JSON.stringify({ Token, DataExpiracao }),
+          );
+
+          setClientDetail(avatar);
+        })
+    } catch (error: any) {
+      console.log('Facebook login fail:', error);
+      throw new Error(error);
+    }
+  }
 
   async function signInWithApple() {
     try {
@@ -165,31 +196,29 @@ function AuthProvider({ children }: AuthProviderProps) {
   async function signInWithFacebook() {
     try {
       const { facebookAppId } = process.env;
-
       await Facebook.initializeAsync({ appId: facebookAppId });
-      
       const data = await Facebook.logInWithReadPermissionsAsync({
         permissions: ["public_profile", "email"],
       });
-      
+      console.log('data.type in FACEBOOK:', typeof data.type, data.type);
       if (data.type === 'success') {
         const response = await fetch(
           `https://graph.facebook.com/me?fields=id,name,picture.type(large),email&access_token=${data.token}`
         );
         const userInfo = await response.json();
-        // console.log('fb_userInfo:', userInfo, userInfo.picture.data.url);
-        setData({
-          user: {
-            id: userInfo.id,
-            email: userInfo.email,
-            name: userInfo.name,
-            avatar: userInfo.picture.data.url,
-            qtdcreditos: 0,
-          },
-          token: { token: '', expiration: new Date('') }
-        });
-
-
+        console.log('userInfo:', userInfo)
+        getTokenFromPlatform('Facebook', data.token, userInfo.picture.data.url);
+        setClientDetail(userInfo.picture.data.url)
+        // setData({
+        //   user: {
+        //     id: userInfo.id,
+        //     email: userInfo.email,
+        //     name: userInfo.name,
+        //     avatar: userInfo.picture.data.url,
+        //     qtdcreditos: 0,
+        //   },
+        //   token: { token, expiration }
+        // });
       }
     } catch (error: any) {
       console.log('Social athentication is not working:', error);
@@ -212,25 +241,8 @@ function AuthProvider({ children }: AuthProviderProps) {
       if (type === 'success') {
         const response = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${params.access_token}`);
         const userInfo = await response.json();
-        
-        const dataValues = {
-          id: userInfo.id,
-          email: userInfo.email,
-          name: userInfo.given_name,
-          avatar: userInfo.picture,
-          qtdcreditos: 0,
-        }
-
-        try {
-          await AsyncStorage.setItem(
-            '@TarotOnline:user', JSON.stringify(dataValues)
-          );
-
-          setData({ user: dataValues, token: { token: '', expiration: new Date('') } });
-        } catch (error) {
-          console.log('Cant set asyncstorage credentials:', error);
-          Alert.alert("Não foi possível armazenar seus dados no dispositivo.");
-        }
+        getTokenFromPlatform('Google', params.access_token, userInfo.picture);
+        setClientDetail(userInfo.picture)
       } else {
         console.log('retorno do google por desistencia:');
       }
@@ -242,58 +254,66 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
-      const { APIKEY } = process.env;
-      api.defaults.headers.APIKEY = APIKEY;
-
       const signInResponse = await api.post('autenticacao/login/', {
         Email: email,
         Senha: password,
       });
       
       const { Token, DataExpiracao } = signInResponse.data;
-
+      console.log('in singin token:', signInResponse.data)
+      setExpiration(DataExpiracao);
       api.defaults.headers.TOKEN = Token;
 
-      try {
-        const authenticationResponse = await api
-          .get('autenticacao/detalhes-cliente/');
-    
-        const { Codigo, Email, Nome, QtdCreditos } = authenticationResponse.data;
-        
-        const dataValues = {
-          id: Codigo,
-          email: Email,
-          name: Nome,
-          qtdcreditos: QtdCreditos
-        }
-
-        try {
-          await AsyncStorage.multiSet([
-            ['@TarotOnline:user', JSON.stringify(dataValues)],
-            ['@TarotOnline:token', JSON.stringify({ Token, DataExpiracao})],
-          ]);
-
-          setData({user: dataValues, token: Token });
-        } catch (error) {
-          console.log('Cant set asyncstorage credentials:', error);
-          Alert.alert("Não foi possível armazenar seus dados no dispositivo.");
-        }
-      } catch (err) {
-        console.log('Could not get client informations:', err);
-        Alert.alert('Erro ao obter detalhes do cliente!')
-      }
+      setClientDetail('');
     } catch (error) {
       console.log('Could not login on app:', error);
       Alert.alert('Erro ao tentar realizar Login no app, verifique suas credenciais!');
     }
-
   }
 
+  async function setClientDetail(avatar: string) {
+    console.log('TOKEN da Tarot Online:',api.defaults.headers.TOKEN)
+    try {
+      const authenticationResponse = await api
+        .get('autenticacao/detalhes-cliente/');
+  
+      const { Codigo, Email, Nome, QtdCreditos } = authenticationResponse.data;
+      
+      const dataValues = {
+        id: Codigo,
+        email: Email,
+        name: Nome,
+        avatar,
+        qtdcreditos: QtdCreditos
+      }
+
+      try {
+        await AsyncStorage.setItem(
+          '@TarotOnline:user', JSON.stringify(dataValues)
+        );
+
+        setData({
+          user: dataValues,
+          token: { token, expiration }
+        });
+      } catch (error) {
+        console.log('Cant set asyncstorage credentials:', error);
+        Alert.alert("Não foi possível armazenar seus dados no dispositivo.");
+      }
+    } catch (err) {
+      console.log('Could not get client informations:', err);
+      Alert.alert('Erro ao obter detalhes do cliente!');
+    }
+  }
+    
   async function signOut() {
-    await AsyncStorage.multiRemove([
-      // '@TarotOnline:user', retirado por conta do login Apple que so entrega o nome no primeiro acesso
-      '@TarotOnline:token', 
-    ]);
+    async function clearAll(): Promise<void> {
+      await AsyncStorage.multiRemove([
+        // '@TarotOnline:user', retirado por conta do login Apple que so entrega o nome no primeiro acesso
+        '@TarotOnline:token'
+      ]);
+    }
+    clearAll();
 
     setData({} as AuthState);
   }

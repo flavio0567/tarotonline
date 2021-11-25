@@ -1,9 +1,8 @@
 import styled from 'styled-components/native';
-import { Platform, Dimensions } from 'react-native';
+import { Dimensions } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 const {height, width} = Dimensions.get('window');
@@ -13,7 +12,14 @@ export const Container = styled.View`
   margin-top: 50px;
 `;
 
-export const Content = styled.View``;
+export const Content = styled.ScrollView`
+  /* margin-top: 106px; */
+  margin-top: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+  padding: 14px;
+  background-color: ${({ theme }) => theme.colors.background};
+`;
 
 export const ConfirmationButton = styled.View`
   flex-direction: row;
@@ -49,24 +55,34 @@ export const BackButton = styled(RectButton)`
   color: ${({ theme }) => theme.colors.secondary};
 `;
 
-export const TimeInfoWrapper = styled.View`
-  flex-direction: row;
-  justify-content: space-evenly;
-  padding: 5px;
-  background-color: ${({ theme }) => theme.colors.secondary};
-`;
-
-export const TimeInfo = styled.View`
+export const Form = styled.View`
   align-items: center;
+  padding: 6px 6px;
 `;
 
-export const TimeInfoLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
+export const PriceLabel = styled.Text`
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  color: ${({ theme }) => theme.colors.title};
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)};
+  font-size: ${RFValue(22)};
+  background-color: ${({ theme}) => theme.colors.success_light};
 `;
 
-export const Time = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
-  font-family: ${({ theme }) => theme.fonts.bold}
+export const MessageText = styled.TextInput`
+  flex: 1;
+  width: ${RFValue(272)};
+  height: ${RFValue(160)};
+  padding: 14px;
+  margin-bottom: 6px;
+  background-color: ${({ theme }) => theme.colors.shape};
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(15)}px;
+
+  /* padding: 0 23px; */
+
+  border-bottom-width: 2px;
+  border-bottom-color: ${({ theme }) => theme.colors.background};
 `;

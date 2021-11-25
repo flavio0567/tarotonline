@@ -3,7 +3,7 @@ import {Picker} from '@react-native-picker/picker';
 
 import { SearchView, SearchIcon, SearchInput } from './styles';
 
-export function Search() {
+export function Search({ attendant }: any ) {
   const [selectedLanguage, setSelectedLanguage] = useState('Pesquise seu Consultor por Especialidade');
 
   return (

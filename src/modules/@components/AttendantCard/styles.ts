@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { Ionicons, Entypo } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 
@@ -71,7 +71,12 @@ export const Button = styled(RectButton)`
 
 export const IconService = styled(Ionicons)`
   color: ${({ theme }) => theme.colors.secondary};
-  font-size: ${RFValue(22)}px;
+  font-size: ${RFValue(28)}px;
+`;
+
+export const ChatIconService = styled(Entypo)`
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${RFValue(28)}px;
 `;
 
 export const Content = styled.View``;

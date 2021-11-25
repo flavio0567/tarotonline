@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-// import { MotiView } from 'moti';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 import { useTheme } from 'styled-components';
 import { Button } from '../../shared/components/Button';
@@ -11,6 +10,14 @@ import { useAuth } from '../../shared/hooks/auth';
 
 import {
   Container,
+  Header,
+  UserWrapper,
+  UserInfo,
+  User,
+  UserName,
+  SideWrapper,
+  BalanceView,
+  BalanceText,
   PhotoWrapper,
   Photo,
   Title,
@@ -21,50 +28,13 @@ import {
   Attendant,
   ButtonWrapper,
   ButtonServiceChannel,
+  NavBack,
   Separator,
   SeparatorText,
-  // TimeTableText,
   ConfirmationButton,
   PickerView,
   PickerButton,
 } from './styles';
-
-// interface Props {
-//   type: 'Disponível' | 'Em atendimento';
-// }
-
-// interface CadastroProps {
-//   Codigo: string;
-//   Descricao: string;
-//   Experiencia: string;
-//   Foto: string;
-//   Frase: string;
-//   HorarioAtendimento: string;
-//   Link: string;
-//   Nome: string;
-//   Nota: number;
-//   Oraculos: string;
-//   Status: string;
-// }
-
-// interface ClientCommentsProps {
-//   Atendente: {
-//     Codigo: number;
-//     Foto: string;
-//     Link: string;
-//     Nome: string;
-//   },
-//   Cliente:  {
-//     Codigo: number,
-//     Nome: string,
-//   },
-//   Depoimento: {
-//     Codigo: number;
-//     DataCadastro: Date;
-//     Nota: number;
-//     Texto: string;
-//   }
-// }
 
 interface PriceProps {
   Codigo: number;
@@ -72,15 +42,22 @@ interface PriceProps {
   Valor: number;
 }
 
+type ItemProps = {
+  Valor: string;
+  Titulo: string;
+}
+
+type NavProps = NavigationProp<ParamListBase>;
+
 export function SelectedAttendant({ route }: any) {
   const { attendant, mode } = route.params;
-  const { selectedMode } = useAuth();
+  const { selectedMode, user } = useAuth();
   const [serviceChannel, setServiceChannel] = useState(mode);
   const [selectedSalesPrice, setSelectedSalesPrice] = useState<any>();
   
   const [showSalesPrice, setshowSalesPrice] = useState(true);
   const [salesPrice, setSalesPrice] = useState([]);
-  const { navigate, goBack } = useNavigation();
+  const navigation = useNavigation<NavProps>();
   const theme = useTheme();
 
   useEffect(() => {
@@ -106,7 +83,7 @@ export function SelectedAttendant({ route }: any) {
     await api.get('outros/formas-pagamento/')
       .then((res) => {
         const paymentMethods = res.data;
-        navigate('PaymentOptions', { attendant, price, paymentMethods })
+        navigation.navigate('PaymentOptions', { attendant, price, paymentMethods })
       });
   }
 
@@ -118,7 +95,7 @@ export function SelectedAttendant({ route }: any) {
       async function callAPI() {
         try {
           if (api.defaults.headers.TOKEN) {
-            navigate('ChatService', { attendant });
+            navigation.navigate('ChatService', { attendant });
           } else {
             Alert.alert(
               "Consulta não disponível:",
@@ -137,7 +114,6 @@ export function SelectedAttendant({ route }: any) {
   }
 
   async function handleCallService() {
-    console.log('call activated!')
     setServiceChannel('call');
     selectedMode('call');
 
@@ -145,7 +121,7 @@ export function SelectedAttendant({ route }: any) {
       async function callAPI() {
         try {
           if (api.defaults.headers.TOKEN) {
-            navigate('CallService', { attendant });
+            navigation.navigate('CallService', { attendant });
           } else {
             Alert.alert(
               "Consulta não disponível:",
@@ -171,7 +147,7 @@ export function SelectedAttendant({ route }: any) {
       async function callAPI() {
         try {
           if (api.defaults.headers.TOKEN) {
-            navigate('VideoService', { attendant });
+            navigation.navigate('VideoService', { attendant });
           } else {
             Alert.alert(
               "Consulta não disponível:",
@@ -189,15 +165,15 @@ export function SelectedAttendant({ route }: any) {
     }
   }
 
-  async function handleMailService() {
+  async function handleEmailService() {
     setServiceChannel('mail');
     selectedMode('mail');
-    console.log('Mail service activated!!!!!')
+    console.log('Email service activated!!!!!')
     if (attendant.Cadastro.Status === 'DISPONIVEL') {
       async function callAPI() {
         try {
           if (api.defaults.headers.TOKEN) {
-            navigate('CallService', { attendant });
+            navigation.navigate('EmailService', { attendant });
           } else {
             Alert.alert(
               "Consulta não disponível:",
@@ -216,33 +192,33 @@ export function SelectedAttendant({ route }: any) {
   }
 
   return (
-    // <MotiView
-    //   delay={200}
-    //   from={{
-    //     opacity: 0,
-    //     translateY: 0
-    //   }}
-    //   animate={{
-    //     opacity: 1,
-    //     translateY: -300
-    //   }}
-    //   transition={{
-    //     type: 'timing',
-    //     duration: 2000
-    //   }}
-    // >
     <Container>
-      <Separator>
+      <NavBack>
         <BackButton
-          style={{ marginLeft: -65 }}
-          onPress={() => goBack()}
+          style={{ marginLeft: -100, marginTop: 28 }}
+          onPress={() => navigation.goBack()}
         >
           <Icon
             name="chevron-back"
           />
         </BackButton>
         <SeparatorText style={{ marginLeft: 40 }}>Consultor Selecionado</SeparatorText>
-      </Separator>
+      </NavBack>
+      <Header>
+        <UserWrapper>
+          <UserInfo>
+            <User>
+              <UserName>{user.name}</UserName>
+            </User>
+          </UserInfo>
+          <SideWrapper>
+            <BalanceView>
+              <BalanceText>Meu Saldo</BalanceText>
+              <BalanceText>R$ {(user.qtdcreditos).toFixed(2)}</BalanceText>
+            </BalanceView>
+          </SideWrapper>
+         </UserWrapper>
+      </Header>
       <AttendantWrapper>
         <PhotoWrapper>
           <Photo
@@ -308,7 +284,7 @@ export function SelectedAttendant({ route }: any) {
         {attendant.FormasAtt.Email !== 'NAOATENDENTE' &&
           (
           <ButtonServiceChannel
-            onPress={handleMailService}
+            onPress={handleEmailService}
           >
             <Icon
               name="mail"
@@ -323,26 +299,8 @@ export function SelectedAttendant({ route }: any) {
       </ButtonWrapper>
 
       <Separator>
-        <SeparatorText>Selecione Tempo</SeparatorText>
+        <SeparatorText>Comprar Crédito</SeparatorText>
       </Separator>
-
-      {/* <OpenDataPickerButton onPress={handleToggleDatePicker}>
-        <OpenDataPickerButtonText
-          allowFontScaling={false}
-          accessibilityLabel="Selecione o valor da compra"
-        >
-          Selecione o valor da compra
-        </OpenDataPickerButtonText>
-      </OpenDataPickerButton>     */}
-
-      {/* <Button
-        title="Selecione o valor da compra"
-        onPress={() => setshowSalesPrice(!showSalesPrice)}
-        enabled={!isLoading}
-        loading={isLoading}
-        color={theme.colors.primary}
-        // style={{ borderRadius: 10, height: 20, width: 200 }}
-      /> */}
 
       {showSalesPrice && (
           <PickerView>
@@ -351,7 +309,7 @@ export function SelectedAttendant({ route }: any) {
             onValueChange={(item) => setSelectedSalesPrice(item)}
             >
               {
-                salesPrice.map((item, index) =>
+                salesPrice.map((item: ItemProps, index) =>
                   {
                   return <PickerButton.Item
                     value={item.Valor}
@@ -371,7 +329,6 @@ export function SelectedAttendant({ route }: any) {
         />
       </ConfirmationButton>
     </Container>
-  // </MotiView>
   )
     
 }

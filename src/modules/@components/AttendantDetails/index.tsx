@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MotiView } from 'moti';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
+
 import he from 'he';
 import { format, parse } from 'date-fns';
 import { Rating } from 'react-native-elements';
@@ -39,9 +41,7 @@ import {
   CommentsWrapper,
 } from './styles';
 
-interface Props {
-  type: 'Disponível' | 'Em atendimento';
-}
+type NavProps = NavigationProp<ParamListBase>;
 
 interface CadastroProps {
   Codigo: string;
@@ -78,7 +78,8 @@ interface ClientCommentsProps {
 
 export function AttendantDetails({ route }: any) {
   const { item: attendant, clientComments, attendantCard } = route.params;
-  const { navigate } = useNavigation();
+  const navigation = useNavigation<NavProps>();
+
   const { mode, selectedMode } = useAuth();
   const theme = useTheme();
   const description = sanitizeHTML(attendantCard.Descricao);
@@ -88,7 +89,6 @@ export function AttendantDetails({ route }: any) {
   const { Cadastro } = attendant;
   const comments = clientComments.Dados;
   const [attendantDetails, setAttendantDetails] = useState<CadastroProps>({} as CadastroProps);
-  const { goBack } = useNavigation();
 
   useEffect(() => {
     setAttendantDetails(Cadastro);
@@ -119,7 +119,7 @@ export function AttendantDetails({ route }: any) {
 
   function handleSelection(mode: string) {
     selectedMode(mode);
-    navigate('SelectedAttendant', { mode, attendant });
+    navigation.navigate('SelectedAttendant', { mode, attendant });
   }
   
   return (
@@ -155,7 +155,7 @@ export function AttendantDetails({ route }: any) {
           <AttendantName>
             <Title>{attendant.Cadastro.Nome}</Title>
 
-            <BackButton onPress={() => goBack()}/>
+            <BackButton onPress={() => navigation.goBack()}/>
           </AttendantName>
           <AttendantDescription>
             <ProfileDetailsText>{description}</ProfileDetailsText>

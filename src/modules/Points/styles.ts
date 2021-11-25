@@ -2,7 +2,7 @@ import styled from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 
 const {width} = Dimensions.get('window');
 
@@ -15,7 +15,7 @@ export const BoxSelection = styled.View`
   margin-top: 106px;
   margin-left: 20px;
   margin-right: 20px;
-  height: 276px;
+  height: 140px;
   background-color: ${({ theme }) => theme.colors.secondary};
   border-radius: 20px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -43,7 +43,7 @@ export const TitleText = styled.Text`
   color: ${({ theme }) => theme.colors.secondary};
   font-size: 18px;
   font-weight: bold;
-  margin-left: ${width / 8}px;
+  margin-left: ${width / 3.8}px;
 `;
 
 export const Separator = styled.View`
@@ -61,7 +61,12 @@ export const BackButton = styled(RectButton)`
   color: ${({ theme }) => theme.colors.secondary};
 `;
 
-export const Icon = styled(Ionicons)`
+export const Icon = styled(FontAwesome5)`
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${RFValue(22)}px;
+`;
+
+export const IconBack = styled(Ionicons)`
   color: ${({ theme }) => theme.colors.secondary};
   font-size: ${RFValue(22)}px;
 `;

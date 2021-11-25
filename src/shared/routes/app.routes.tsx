@@ -6,7 +6,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { Dashboard } from '../../modules/Dashboard';
+import { Credits } from '../../modules/Credits';
 import { Historic } from '../../modules/Historic';
+import { Points } from '../../modules/Points';
 import { AttendantDetails } from '../../modules/@components/AttendantDetails';
 import { SelectedAttendant } from '../../modules/SelectedAttendant';
 import { PaymentOptions } from '../../modules/PaymentOptions';
@@ -15,6 +17,7 @@ import { VideoService } from '../../modules/@components/VideoService';
 import { CallService } from '../../modules/@components/CallService';
 import { EmailService } from '../../modules/@components/EmailService';
 import { ChatService } from '../../modules/@components/ChatService';
+import { OtherOptionsWebView } from '../../modules/@components/OtherOptionsWebView';
 
  type IconsVariation = {
   [key: string]: keyof typeof MaterialCommunityIcons.glyphMap; 
@@ -38,7 +41,7 @@ export function AppRoutes() {
                 Consultar: 'cards-playing-outline',
                 Créditos: 'cart-outline',
                 Histórico: 'text-to-speech',
-                Promoções: 'currency-brl'
+                Pontos: 'currency-brl'
               };
           
               return (
@@ -59,8 +62,12 @@ export function AppRoutes() {
             component={Dashboard}
           />
           <Tab.Screen
+            name="Histórico"
+            component={Historic}
+          />
+          <Tab.Screen
             name="Créditos"
-            component={PaymentOptions}
+            component={Credits}
             options={{
               tabBarItemStyle: {
                 width: 10
@@ -68,12 +75,8 @@ export function AppRoutes() {
             }}
           />
           <Tab.Screen
-            name="Histórico"
-            component={Historic}
-          />
-          <Tab.Screen
-            name="Promoções"
-            component={Historic}
+            name="Pontos"
+            component={Points}
           />
         </Tab.Group>
       </Tab.Navigator>
@@ -112,6 +115,13 @@ export function AppRoutes() {
           }}
         />
         <Stack.Screen
+          name="OtherOptions"
+          component={OtherOptionsWebView}
+          options={{
+            headerShown: false
+          }}
+        /> 
+        <Stack.Screen
           name="ChatService"
           component={ChatService}
           options={{
@@ -138,7 +148,7 @@ export function AppRoutes() {
           options={{
             headerShown: false
           }}
-        />
+        />  
       </Stack.Navigator>
     )
   }, []);
