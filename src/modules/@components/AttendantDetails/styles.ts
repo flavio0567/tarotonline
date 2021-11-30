@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 import { MotiImage as Image } from 'moti';
 
-import { Feather, Ionicons, AntDesign } from '@expo/vector-icons';
+import { Feather, Ionicons, AntDesign, Entypo } from '@expo/vector-icons';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
@@ -116,8 +116,8 @@ export const Button = styled(RectButton)`
   justify-content: space-evenly;
   align-items: center;
 
-  width: ${RFValue(42)}px;
-  height: ${RFValue(42)}px;
+  width: ${RFValue(43)}px;
+  height: ${RFValue(43)}px;
   background-color: ${({ theme }) => theme.colors.primary};
   border-radius: 25px;
 `;
@@ -130,7 +130,7 @@ export const ButtonText = styled.Text`
 
 export const Icon = styled(Ionicons)`
   color: ${({ theme }) => theme.colors.secondary};
-  font-size: ${RFValue(20)}px;
+  font-size: ${RFValue(28)}px;
   margin-bottom: ${RFValue(10)}px;
 `;
 
@@ -138,6 +138,11 @@ export const IconStart = styled(AntDesign)`
   color: ${({ theme }) => theme.colors.gold};
   font-size: ${RFValue(12)}px;
   margin-bottom: ${RFValue(12)}px;
+`;
+
+export const ChatIconService = styled(Entypo)`
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${RFValue(28)}px;
 `;
 
 export const Separator = styled.View`

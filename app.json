@@ -24,6 +24,9 @@
         "wasm",
         "svg"
       ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.tarotonline"
     }
   }
 }

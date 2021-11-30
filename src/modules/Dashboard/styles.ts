@@ -69,6 +69,8 @@ export const UserPanelText = styled.Text`
   color: ${({ theme }) => theme.colors.gold};
   font-size: ${RFValue(10)}px;
   font-family: ${({ theme }) => theme.fonts.regular};
+  text-decoration: underline;
+  text-decoration-color: ${({ theme }) => theme.colors.gold};
 `;
 
 export const UserGreeting = styled.Text`

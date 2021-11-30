@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 
 import { MotiImage as Image } from 'moti';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Entypo } from '@expo/vector-icons';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
@@ -165,7 +165,17 @@ export const ButtonText = styled.Text`
 
 export const Icon = styled(Ionicons)`
   color: ${({ theme }) => theme.colors.secondary};
-  font-size: ${RFValue(22)}px;
+  font-size: ${RFValue(28)}px;
+`;
+
+export const IconBack = styled(Ionicons)`
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${RFValue(24)}px;
+`;
+
+export const ChatIconService = styled(Entypo)`
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${RFValue(28)}px;
 `;
 
 export const NavBack = styled.SafeAreaView`

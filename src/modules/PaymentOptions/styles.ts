@@ -32,21 +32,6 @@ export const BackButton = styled(RectButton)`
   color: ${({ theme }) => theme.colors.secondary};
 `;
 
-export const Icon = styled(Ionicons)`
-  margin-top: 14px;
-  color: ${({ theme }) => theme.colors.secondary};
-  font-size: ${RFValue(22)}px;
-`;
-
-export const Content = styled.ScrollView.attrs({
-  contentContainerStyle: {
-    // marginLeft: 10,
-    paddingBottom: 10
-  },
-  showsVerticalScrollIndicator: false
-})``;
-
-
 export const IconView = styled.View`
   width: ${Platform.OS === 'ios' ? RFValue(74) : RFValue(97)}px;
   height: ${Platform.OS === 'ios' ? RFValue(74) : RFValue(97)}px;
@@ -57,8 +42,92 @@ export const IconView = styled.View`
   padding: 10px;
 `;
 
+export const Icon = styled(Ionicons)`
+  margin-top: 14px;
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${RFValue(22)}px;
+`;
+
+export const Content = styled.ScrollView.attrs({
+  contentContainerStyle: {
+    paddingBottom: 10
+  },
+  showsVerticalScrollIndicator: false
+})``;
+
+export const Box = styled(RectButton)`
+  width: ${RFValue(260)}px;
+  height: ${RFValue(210)}px;
+  margin:  ${RFValue(18)}px ${RFValue(42)}px;
+`;
+
+export const BoxLogo = styled.View`
+  width: ${RFValue(259)}px;
+  height: ${RFValue(56)}px;
+  align-items: center;
+  justify-content: center;
+
+  background: #F6F6F6;
+  border-radius: 6px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border: solid 2px ${({ theme }) => theme.colors.secondary};
+`;
+
+export const ImageIcon = styled.Image`
+  /* margin-top: 5px; */
+  margin-left: 12px;
+`;
+
+export const BoxCards = styled.View`
+  width: ${RFValue(259)}px;
+  height: ${RFValue(156)}px;
+  margin-top: 3px;
+  padding: 6px;
+  border-radius: 6px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  background-color: ${({ theme }) => theme.colors.secondary};
+`;
+
+export const CardView = styled.View`
+  flex-direction: row;
+  padding: 48px 26px;
+  /* margin-top: 60px; */
+`;
+
 export const CreditImage = styled.Image`
+  margin-left: 12px;
+`;
+
+export const CardText = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.bold};
+  font-size: 18px;
+  color: ${({ theme }) => theme.colors.primary};
+  padding-left: 12px;
+  margin-top: 8px;
+`;
+
+export const BoxTimeToRelease = styled.View`
   margin: 4px;
+  border-radius: 5px;
+  background-color: ${({ theme }) => theme.colors.primary_dark};
+  /* margin-bottom: 50px; */
+`;
+
+export const TimeToReleaseTextText = styled.Text`
+  font-size: ${RFValue(16)};
+  font-family: ${({ theme }) => theme.fonts.bold};
+  color: ${({ theme }) => theme.colors.attention};
+  text-align: center;
+  padding: 3px;
+`;
+
+export const MultiCardView = styled.View`
+  flex-direction: column;
+`;
+
+export const IconCardView = styled.View`
+  flex-direction: row;
+  padding: 8px;
 `;
 
 export const BankImage = styled.Image`
@@ -83,74 +152,4 @@ export const SelectionText = styled.Text`
   font-size: 16px;
   font-family: ${({ theme}) => theme.fonts.regular};
   color: ${({ theme }) => theme.colors.secondary};
-`;
-
-export const Box = styled(RectButton)`
-  width: ${RFValue(154)}px;
-  height: ${RFValue(152)}px;
-  border-radius: 10px;
-  margin: 10px;
-`;
-
-export const BoxLogo = styled.View`
-  width: ${RFValue(154)}px;
-  height: ${RFValue(42)}px;
-  align-items: center;
-  justify-content: center;
-
-  background: #F6F6F6;
-  border-radius: 6px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border: solid 2px ${({ theme }) => theme.colors.secondary};
-`;
-
-export const ImageIcon = styled.Image`
-  margin: ${Platform.OS === 'ios' ? RFValue(6) : RFValue(4)}px;
-`;
-
-export const BoxCards = styled.View`
-  width: ${RFValue(154)}px;
-  height: ${RFValue(114)}px;
-  margin-top: 3px;
-  border-radius: 6px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  background-color: ${({ theme }) => theme.colors.secondary};
-`;
-
-export const CardView = styled.View`
-  flex-direction: row;
-  margin: 10px;
-  padding-top: 6px;
-`;
-
-export const CardText = styled.Text`
-  width: ${RFValue(120)};
-  font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: 13px;
-  color: ${({ theme }) => theme.colors.primary};
-  padding-left: 4px;
-  margin-top: 8px;
-`;
-
-export const MultiCardView = styled.View`
-  flex-direction: column;
-`;
-
-export const BoxTimeToRelease = styled.View`
-  margin: 4px;
-  border-radius: 5px;
-  background-color: ${({ theme}) => theme.colors.primary_dark};
-`;
-
-export const TimeToReleaseTextText = styled.Text`
-  font-size: ${RFValue(11)};
-  font-family: ${({ theme }) => theme.fonts.bold};
-  color: ${({ theme }) => theme.colors.attention};
-  text-align: center;
-  padding: 4px;
-`;
-
-export const IconCardView = styled.View`
-  flex-direction: row;
-  padding: 8px;
 `;

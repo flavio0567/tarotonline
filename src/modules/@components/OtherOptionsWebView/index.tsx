@@ -50,7 +50,7 @@ export function OtherOptionsWebView({ route }: any) {
       }
       <WebView
         source={{ uri: `${Link}` }}
-        injectedJavaScriptBeforeContentLoaded={js}
+        // injectedJavaScriptBeforeContentLoaded={js}
         onError={(event) => alert(`WebView error ${event.nativeEvent.description}`)}
         onLoadProgress={(event) => setProgress(event.nativeEvent.progress)}
         onLoadEnd={() => setLoaded(true)}

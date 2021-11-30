@@ -21,6 +21,7 @@ import {
   Icon,
   StatusWrapper,
   IconStart,
+  ChatIconService,
   Availability,
   AttendantWrapper,
   Attendant,
@@ -170,7 +171,7 @@ export function AttendantDetails({ route }: any) {
                     name="call"
                     style={{color: mode === 'call'
                       ? theme.colors.secondary
-                      : "#fff", top: 4
+                      : "#fff", top: 6
                     }}
                   />
                 </Button>
@@ -181,11 +182,11 @@ export function AttendantDetails({ route }: any) {
                 <Button
                   onPress={() => handleSelection('chat')}
                 >
-                  <Icon
-                    name="ios-chatbubbles"
+                  <ChatIconService
+                    name="chat"
                     style={{color: mode === 'chat' 
                       ? theme.colors.secondary
-                      : "#fff", top: 4
+                      : "#fff", top: 2
                     }}
                   />
                 </Button>

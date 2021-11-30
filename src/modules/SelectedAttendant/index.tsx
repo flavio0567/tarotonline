@@ -22,6 +22,8 @@ import {
   Photo,
   Title,
   Icon,
+  IconBack,
+  ChatIconService,
   BackButton,
   Availability,
   AttendantWrapper,
@@ -198,7 +200,7 @@ export function SelectedAttendant({ route }: any) {
           style={{ marginLeft: -100, marginTop: 28 }}
           onPress={() => navigation.goBack()}
         >
-          <Icon
+          <IconBack
             name="chevron-back"
           />
         </BackButton>
@@ -256,11 +258,11 @@ export function SelectedAttendant({ route }: any) {
           <ButtonServiceChannel
             onPress={handleChatService}
           >
-            <Icon
-              name="ios-chatbubbles"
+            <ChatIconService
+              name="chat"
               style={{color: serviceChannel === 'chat' 
                 ? theme.colors.secondary
-                : "#fff", top: 4
+                : "#fff", top: 3
               }}
             />
           </ButtonServiceChannel>

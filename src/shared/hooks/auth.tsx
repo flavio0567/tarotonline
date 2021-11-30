@@ -8,7 +8,7 @@ import React, {
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import * as Facebook from 'expo-facebook';
+import * as FB from 'expo-facebook';
 import * as AuthSession from 'expo-auth-session';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
@@ -78,6 +78,21 @@ function AuthProvider({ children }: AuthProviderProps) {
   const [codeClient, setCodeClient] = useState(0);
   const [token, setToken] = useState('');
   const [expiration, setExpiration] = useState(new Date(''));
+  const [facebookAppId, setFacebookAppId] = useState('');
+
+
+  useEffect(() => {
+    const getFacebookAppId = async () => {
+      await api.get('outros/login-social/')
+        .then(async (res) => {
+          const { Facebook } = res.data;
+          console.log('----> facebook w4b', Facebook)
+          setFacebookAppId(Facebook);
+          // await FB.initializeAsync({ appId: Facebook, appName: 'tarotonline' });
+        });
+    }
+    getFacebookAppId();
+  }, []);
 
   useEffect(() => {
     const { APIKEY } = process.env;
@@ -116,9 +131,9 @@ function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const getTokenFromPlatform = async (provider: string, token: string, avatar: string) => {
-    console.log('prvider:', provider, 'token:', token, 'avatart:', avatar)
+    console.log('PROVIDER:', provider, 'TOKEN:', token, 'AVATAR:', avatar)
     try {
-      await api.post('/autenticacao/login-social/', {
+      await api.post('autenticacao/login-social/', {
         "Provedor": provider,
         "AccessToken": token
       })
@@ -195,30 +210,26 @@ function AuthProvider({ children }: AuthProviderProps) {
   
   async function signInWithFacebook() {
     try {
-      const { facebookAppId } = process.env;
-      await Facebook.initializeAsync({ appId: facebookAppId });
-      const data = await Facebook.logInWithReadPermissionsAsync({
+      // await api.get('outros/login-social/')
+      //   .then(async (res) => {
+      //     const { Facebook } = res.data;
+      //     console.log(' facebookId --->', Facebook)
+      console.log('FacebookAppId:',facebookAppId);
+      await FB.initializeAsync({ appId: facebookAppId, appName: 'tarotonline' });
+      const data = await FB.logInWithReadPermissionsAsync({
         permissions: ["public_profile", "email"],
       });
-      console.log('data.type in FACEBOOK:', typeof data.type, data.type);
-      if (data.type === 'success') {
+      const { type } = data;
+
+      console.log('data in FACEBOOK:', data);
+      if (type === 'success') {
         const response = await fetch(
           `https://graph.facebook.com/me?fields=id,name,picture.type(large),email&access_token=${data.token}`
         );
         const userInfo = await response.json();
-        console.log('userInfo:', userInfo)
-        getTokenFromPlatform('Facebook', data.token, userInfo.picture.data.url);
-        setClientDetail(userInfo.picture.data.url)
-        // setData({
-        //   user: {
-        //     id: userInfo.id,
-        //     email: userInfo.email,
-        //     name: userInfo.name,
-        //     avatar: userInfo.picture.data.url,
-        //     qtdcreditos: 0,
-        //   },
-        //   token: { token, expiration }
-        // });
+        console.log(userInfo)
+        const { url } = userInfo.picture.data;
+        getTokenFromPlatform('Facebook', data.token, url);
       }
     } catch (error: any) {
       console.log('Social athentication is not working:', error);
@@ -272,7 +283,6 @@ function AuthProvider({ children }: AuthProviderProps) {
   }
 
   async function setClientDetail(avatar: string) {
-    console.log('TOKEN da Tarot Online:',api.defaults.headers.TOKEN)
     try {
       const authenticationResponse = await api
         .get('autenticacao/detalhes-cliente/');
@@ -287,7 +297,9 @@ function AuthProvider({ children }: AuthProviderProps) {
         qtdcreditos: QtdCreditos
       }
 
-      try {
+        console.log('token e expiration:', dataValues)
+
+      // try {
         await AsyncStorage.setItem(
           '@TarotOnline:user', JSON.stringify(dataValues)
         );
@@ -296,10 +308,10 @@ function AuthProvider({ children }: AuthProviderProps) {
           user: dataValues,
           token: { token, expiration }
         });
-      } catch (error) {
-        console.log('Cant set asyncstorage credentials:', error);
-        Alert.alert("Não foi possível armazenar seus dados no dispositivo.");
-      }
+      // } catch (error) {
+      //   console.log('Cant set asyncstorage credentials:', error);
+      //   Alert.alert("Não foi possível armazenar seus dados no dispositivo.");
+      // }
     } catch (err) {
       console.log('Could not get client informations:', err);
       Alert.alert('Erro ao obter detalhes do cliente!');
